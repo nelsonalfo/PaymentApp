@@ -41,7 +41,12 @@ public class PaymentPresenter implements PaymentContract.Presenter {
 
     private void showPaymentMethods(List<PaymentMethodModel> paymentMethods) {
         view.hideLoading();
-        view.showPaymentMethods(paymentMethods);
+
+        if (paymentMethods != null && !paymentMethods.isEmpty()) {
+            view.showPaymentMethods(paymentMethods);
+        } else {
+            view.showNoPaymentMethodsMessage();
+        }
     }
 
     private void showPaymentMethodsErrorMessage() {
@@ -51,15 +56,22 @@ public class PaymentPresenter implements PaymentContract.Presenter {
 
     @Override
     public void goToSelectCardIssuers(PaymentMethodModel paymentMethod) {
-        paymentDataCollector.setPaymentMethod(paymentMethod);
-        view.showLoading();
+        if (paymentMethod != null) {
+            paymentDataCollector.setPaymentMethod(paymentMethod);
+            view.showLoading();
 
-        repository.getCardIssuers(paymentMethod.getId(), this::showCardIssuers, error -> showCardIssuersErrorMessage());
+            repository.getCardIssuers(paymentMethod.getId(), this::showCardIssuers, error -> showCardIssuersErrorMessage());
+        }
     }
 
     private void showCardIssuers(List<CardIssuerModel> cardIssuers) {
         view.hideLoading();
-        view.showCardIssuers(cardIssuers);
+
+        if (cardIssuers != null && !cardIssuers.isEmpty()) {
+            view.showCardIssuers(cardIssuers);
+        } else {
+            view.showNoCardIssuersMessage();
+        }
     }
 
     private void showCardIssuersErrorMessage() {
@@ -71,9 +83,9 @@ public class PaymentPresenter implements PaymentContract.Presenter {
     public void showPaymentData(CuotaModel selectedCuota) {
         view.showDataInFirstView(
                 paymentDataCollector.getAmount(),
-                paymentDataCollector.getPaymentMethod(),
-                paymentDataCollector.getCardIssuer(),
-                paymentDataCollector.getCuotas()
+                paymentDataCollector.getFormattedPaymentMethod(),
+                paymentDataCollector.getFormattedCardIssuer(),
+                paymentDataCollector.getFormattedCuota()
         );
     }
 }

@@ -13,6 +13,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,6 +25,7 @@ import retrofit2.Response;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PaymentPresenterTest {
@@ -126,6 +128,26 @@ public class PaymentPresenterTest {
     }
 
     @Test
+    public void given_repositoryReturnZeroPaymentMethods_when_goToSelectPaymentMethod_then_showNoPaymentMethodsMessage() throws Exception {
+        final ArrayList<PaymentMethodModel> paymentMethods = new ArrayList<>();
+
+        presenter.goToSelectPaymentMethod(montoIngresado);
+        verify(repository).getPaymentMethods(consumerPaymentMethodsSuccess.capture(), consumerError.capture());
+        consumerPaymentMethodsSuccess.getValue().accept(paymentMethods);
+        verify(view).showNoPaymentMethodsMessage();
+    }
+
+    @Test
+    public void given_repositoryReturnNull_when_goToSelectPaymentMethod_then_showNoPaymentMethodsMessage() throws Exception {
+        final ArrayList<PaymentMethodModel> paymentMethods = null;
+
+        presenter.goToSelectPaymentMethod(montoIngresado);
+        verify(repository).getPaymentMethods(consumerPaymentMethodsSuccess.capture(), consumerError.capture());
+        consumerPaymentMethodsSuccess.getValue().accept(paymentMethods);
+        verify(view).showNoPaymentMethodsMessage();
+    }
+
+    @Test
     public void given_paymentMethodIsSet_when_goToSelectCardIssuers_then_saveMontoInPaymentCollector() {
         presenter.goToSelectCardIssuers(selectedPaymentMethod);
 
@@ -190,29 +212,58 @@ public class PaymentPresenterTest {
         verify(view).showCardIssuersErrorAndRetryMessage();
     }
 
+
+    @Test
+    public void given_repositoryReturnZeroCardIssuers_when_goToSelectCardIssuers_then_showNoCardIssuersMessage() throws Exception {
+        final List<CardIssuerModel> cardIssuers = new ArrayList<>();
+
+        presenter.goToSelectCardIssuers(selectedPaymentMethod);
+
+        verify(repository).getCardIssuers(eq(selectedPaymentMethod.getId()), consumerCardIssuersSuccess.capture(), consumerError.capture());
+        consumerCardIssuersSuccess.getValue().accept(cardIssuers);
+        verify(view).showNoCardIssuersMessage();
+    }
+
+    @Test
+    public void given_repositoryReturnNull_when_goToSelectCardIssuers_then_showNoCardIssuersMessage() throws Exception {
+        final List<CardIssuerModel> cardIssuers = null;
+
+        presenter.goToSelectCardIssuers(selectedPaymentMethod);
+
+        verify(repository).getCardIssuers(eq(selectedPaymentMethod.getId()), consumerCardIssuersSuccess.capture(), consumerError.capture());
+        consumerCardIssuersSuccess.getValue().accept(cardIssuers);
+        verify(view).showNoCardIssuersMessage();
+    }
+
+    @Test
+    public void given_paramIsNull_when_goToSelectCardIssuers_then_doNothing() {
+        final PaymentMethodModel selectedPaymentMethod = null;
+
+        presenter.goToSelectCardIssuers(selectedPaymentMethod);
+
+        verifyZeroInteractions(repository);
+        verifyZeroInteractions(view);
+    }
+
     @Test
     public void given_selectedCuotaIsSet_when_showPaymentData_then_showDataInFirstView() {
         doReturn(4000L).when(paymentDataCollector).getAmount();
-        doReturn("Mastercard").when(paymentDataCollector).getPaymentMethod();
-        doReturn("Banco Comafi").when(paymentDataCollector).getCardIssuer();
-        doReturn("3 cuotas de $ 1.596,27 ($ 4.788,80)").when(paymentDataCollector).getCuotas();
-
+        doReturn("Mastercard").when(paymentDataCollector).getFormattedPaymentMethod();
+        doReturn("Banco Comafi").when(paymentDataCollector).getFormattedCardIssuer();
+        doReturn("3 cuotas de $ 1.596,27 ($ 4.788,80)").when(paymentDataCollector).getFormattedCuota();
         final CuotaModel selectedCuota = new CuotaModel(3, "3 cuotas de $ 1.596,27 ($ 4.788,80)");
-
 
         presenter.showPaymentData(selectedCuota);
 
         verify(view).showDataInFirstView(
                 paymentDataCollector.getAmount(),
-                paymentDataCollector.getPaymentMethod(),
-                paymentDataCollector.getCardIssuer(),
-                paymentDataCollector.getCuotas()
+                paymentDataCollector.getFormattedPaymentMethod(),
+                paymentDataCollector.getFormattedCardIssuer(),
+                paymentDataCollector.getFormattedCuota()
         );
     }
 
-    //TODO que pasa cuando no viene ningun card issuer
-
-    //TODO que pasa cuando no viene ningun payment method
+    //TODO agregar caso de obtencion de informacion de cuotas
 
     private List<PaymentMethodModel> getPaymentMethodStubs() {
         return Arrays.asList(

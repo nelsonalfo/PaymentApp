@@ -21,6 +21,10 @@ public interface PaymentContract {
         void showCardIssuers(List<CardIssuerModel> cardIssuers);
 
         void showCardIssuersErrorAndRetryMessage();
+
+        void showNoPaymentMethodsMessage();
+
+        void showNoCardIssuersMessage();
     }
 
     interface Presenter {

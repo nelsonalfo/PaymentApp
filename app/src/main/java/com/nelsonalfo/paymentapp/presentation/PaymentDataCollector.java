@@ -7,11 +7,11 @@ interface PaymentDataCollector {
 
     long getAmount();
 
-    String getPaymentMethod();
+    String getFormattedPaymentMethod();
 
-    String getCardIssuer();
+    String getFormattedCardIssuer();
 
-    String getCuotas();
+    String getFormattedCuota();
 
     void setPaymentMethod(PaymentMethodModel paymentMethod);
 }
