@@ -34,8 +34,8 @@ public class PaymentPresenter implements PaymentContract.Presenter {
     @Override
     public void goToSelectPaymentMethod(long monto) {
         paymentDataCollector.setAmount(monto);
-
         view.showLoading();
+
         repository.getPaymentMethods(this::showPaymentMethods, error -> showPaymentMethodsErrorMessage());
     }
 
