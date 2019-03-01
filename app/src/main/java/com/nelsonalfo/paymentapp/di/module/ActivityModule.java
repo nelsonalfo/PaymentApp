@@ -1,4 +1,4 @@
-package com.nelsonalfo.paymentapp.di;
+package com.nelsonalfo.paymentapp.di.module;
 
 import com.nelsonalfo.paymentapp.presentation.PaymentActivity;
 

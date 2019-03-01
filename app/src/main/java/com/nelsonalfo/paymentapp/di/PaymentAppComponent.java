@@ -1,6 +1,9 @@
 package com.nelsonalfo.paymentapp.di;
 
 import com.nelsonalfo.paymentapp.PaymentAppApplication;
+import com.nelsonalfo.paymentapp.di.module.ActivityModule;
+import com.nelsonalfo.paymentapp.di.module.NetworkModule;
+import com.nelsonalfo.paymentapp.di.module.ThreadModule;
 
 import javax.inject.Singleton;
 
