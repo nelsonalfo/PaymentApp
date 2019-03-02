@@ -1,11 +1,14 @@
 package com.nelsonalfo.paymentapp.presentation;
 
+import android.arch.core.executor.testing.InstantTaskExecutorRule;
+import android.arch.lifecycle.Observer;
+
 import com.nelsonalfo.paymentapp.data.PaymentRepository;
 import com.nelsonalfo.paymentapp.models.CardIssuerModel;
-import com.nelsonalfo.paymentapp.models.CuotaModel;
 import com.nelsonalfo.paymentapp.models.PaymentMethodModel;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -22,34 +25,42 @@ import okhttp3.ResponseBody;
 import retrofit2.HttpException;
 import retrofit2.Response;
 
+import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PaymentPresenterTest {
+public class PaymentViewModelTest {
+    @Rule
+    public InstantTaskExecutorRule rule = new InstantTaskExecutorRule();
 
+    @Mock
+    private Observer<Boolean> showLoadingObserver;
+    @Mock
+    private Observer<Event<Boolean>> eventObserver;
+    @Mock
+    private Observer<List<PaymentMethodModel>> paymentMethodsObserver;
+    @Mock
+    private Observer<List<CardIssuerModel>> cardIssuersObserver;
     @Mock
     private PaymentRepository repository;
     @Mock
-    private PaymentContract.View view;
-    @Mock
     private ResponseBody mockErrorBody;
-    @Mock
-    private PaymentDataCollector paymentDataCollector;
+
     @Captor
     private ArgumentCaptor<Consumer<List<PaymentMethodModel>>> consumerPaymentMethodsSuccess;
     @Captor
     private ArgumentCaptor<Consumer<List<CardIssuerModel>>> consumerCardIssuersSuccess;
     @Captor
     private ArgumentCaptor<Consumer<Throwable>> consumerError;
+    @Captor
+    private ArgumentCaptor<Event<Boolean>> eventCaptor;
 
     private PaymentMethodModel selectedPaymentMethod;
-
     private long montoIngresado;
 
-    private PaymentPresenter presenter;
+    private PaymentViewModel viewModel;
 
 
     @Before
@@ -57,194 +68,267 @@ public class PaymentPresenterTest {
         montoIngresado = 4000;
         selectedPaymentMethod = new PaymentMethodModel("visa", "Visa", "active", "http://img.mlstatic.com/org-img/MP3/API/logos/naranja.gif");
 
-        presenter = new PaymentPresenter(repository);
-        presenter.setView(view);
-        presenter.setPaymentDataCollector(paymentDataCollector);
+        viewModel = new PaymentViewModel();
+        viewModel.setRepository(repository);
     }
 
     @Test
     public void given_montoIsSet_when_gotToSelectPaymentMethod_then_saveMontoInPaymentCollector() {
-        presenter.goToSelectPaymentMethod(montoIngresado);
+        viewModel.goToSelectPaymentMethod(montoIngresado);
 
-        verify(paymentDataCollector).setAmount(eq(montoIngresado));
+        assertThat(viewModel.getAmount()).isEqualTo(montoIngresado);
     }
+
 
     @Test
     public void given_montoIsSet_when_goToSelectPaymentMethod_then_getPaymentMethodsFromRepository() {
-        presenter.goToSelectPaymentMethod(montoIngresado);
+        viewModel.goToSelectPaymentMethod(montoIngresado);
 
         verify(repository).getPaymentMethods(consumerPaymentMethodsSuccess.capture(), consumerError.capture());
     }
 
     @Test
     public void given_montoIsSet_when_goToSelectPaymentMethod_then_showLoading() {
-        presenter.goToSelectPaymentMethod(montoIngresado);
+        viewModel.getShowLoading().observeForever(showLoadingObserver);
 
-        verify(view).showLoading();
+        viewModel.goToSelectPaymentMethod(montoIngresado);
+
+        assertThat(viewModel.getShowLoading().getValue()).isTrue();
+        verify(showLoadingObserver).onChanged(eq(true));
     }
+
 
     @Test
     public void given_repositoryReturnPaymentMethods_when_goToSelectPaymentMethod_then_hideLoading() throws Exception {
         final List<PaymentMethodModel> paymentMethods = getPaymentMethodStubs();
+        viewModel.getShowLoading().observeForever(showLoadingObserver);
 
-        presenter.goToSelectPaymentMethod(montoIngresado);
+        viewModel.goToSelectPaymentMethod(montoIngresado);
 
         verify(repository).getPaymentMethods(consumerPaymentMethodsSuccess.capture(), consumerError.capture());
         consumerPaymentMethodsSuccess.getValue().accept(paymentMethods);
-        verify(view).hideLoading();
+        assertThat(viewModel.getShowLoading().getValue()).isFalse();
+        verify(showLoadingObserver).onChanged(eq(false));
     }
+
 
     @Test
     public void given_repositoryReturnPaymentMethods_when_goToSelectPaymentMethod_then_showPaymentMethods() throws Exception {
         final List<PaymentMethodModel> paymentMethods = getPaymentMethodStubs();
+        viewModel.getPaymentMethods().observeForever(paymentMethodsObserver);
 
-        presenter.goToSelectPaymentMethod(montoIngresado);
+        viewModel.goToSelectPaymentMethod(montoIngresado);
 
         verify(repository).getPaymentMethods(consumerPaymentMethodsSuccess.capture(), consumerError.capture());
         consumerPaymentMethodsSuccess.getValue().accept(paymentMethods);
-        verify(view).showPaymentMethods(eq(paymentMethods));
+        assertThat(viewModel.getPaymentMethods().getValue()).isEqualTo(paymentMethods);
+        verify(paymentMethodsObserver).onChanged(eq(paymentMethods));
     }
+
 
     @Test
     public void given_repositoryReturnError_when_goToSelectPaymentMethod_then_showErrorAndRetryMessage() throws Exception {
         final HttpException error = new HttpException(Response.error(404, mockErrorBody));
+        viewModel.getShowErrorMessage().observeForever(eventObserver);
 
-        presenter.goToSelectPaymentMethod(montoIngresado);
+        viewModel.goToSelectPaymentMethod(montoIngresado);
 
         verify(repository).getPaymentMethods(consumerPaymentMethodsSuccess.capture(), consumerError.capture());
         consumerError.getValue().accept(error);
-        verify(view).showPaymentMethodsErrorAndRetryMessage();
+        assertThat(viewModel.getShowErrorMessage().getValue()).isInstanceOf(Event.class);
+        verify(eventObserver).onChanged(eventCaptor.capture());
     }
+
 
     @Test
     public void given_repositoryReturnError_when_goToSelectPaymentMethod_then_hideLoading() throws Exception {
+        viewModel.getShowLoading().observeForever(showLoadingObserver);
         final HttpException error = new HttpException(Response.error(404, mockErrorBody));
 
-        presenter.goToSelectPaymentMethod(montoIngresado);
+        viewModel.goToSelectPaymentMethod(montoIngresado);
 
         verify(repository).getPaymentMethods(consumerPaymentMethodsSuccess.capture(), consumerError.capture());
         consumerError.getValue().accept(error);
-        verify(view).hideLoading();
+        assertThat(viewModel.getShowLoading().getValue()).isFalse();
+        verify(showLoadingObserver).onChanged(false);
     }
 
     @Test
     public void given_repositoryReturnZeroPaymentMethods_when_goToSelectPaymentMethod_then_showNoPaymentMethodsMessage() throws Exception {
-        final ArrayList<PaymentMethodModel> paymentMethods = new ArrayList<>();
+        final List<PaymentMethodModel> paymentMethods = new ArrayList<>();
+        viewModel.getShowNoPaymentMethodsMessage().observeForever(eventObserver);
 
-        presenter.goToSelectPaymentMethod(montoIngresado);
+        viewModel.goToSelectPaymentMethod(montoIngresado);
+
         verify(repository).getPaymentMethods(consumerPaymentMethodsSuccess.capture(), consumerError.capture());
         consumerPaymentMethodsSuccess.getValue().accept(paymentMethods);
-        verify(view).showNoPaymentMethodsMessage();
+        assertThat(viewModel.getShowNoPaymentMethodsMessage().getValue()).isInstanceOf(Event.class);
+        verify(eventObserver).onChanged(eventCaptor.capture());
     }
+
 
     @Test
     public void given_repositoryReturnNull_when_goToSelectPaymentMethod_then_showNoPaymentMethodsMessage() throws Exception {
         final ArrayList<PaymentMethodModel> paymentMethods = null;
+        viewModel.getShowNoPaymentMethodsMessage().observeForever(eventObserver);
 
-        presenter.goToSelectPaymentMethod(montoIngresado);
+        viewModel.goToSelectPaymentMethod(montoIngresado);
+
         verify(repository).getPaymentMethods(consumerPaymentMethodsSuccess.capture(), consumerError.capture());
         consumerPaymentMethodsSuccess.getValue().accept(paymentMethods);
-        verify(view).showNoPaymentMethodsMessage();
+        assertThat(viewModel.getShowNoPaymentMethodsMessage().getValue()).isInstanceOf(Event.class);
+        verify(eventObserver).onChanged(eventCaptor.capture());
     }
+
 
     @Test
     public void given_paymentMethodIsSet_when_goToSelectCardIssuers_then_saveMontoInPaymentCollector() {
-        presenter.goToSelectCardIssuers(selectedPaymentMethod);
+        viewModel.goToSelectCardIssuers(selectedPaymentMethod);
 
-        verify(paymentDataCollector).setPaymentMethod(eq(selectedPaymentMethod));
+        assertThat(viewModel.getSelectedPaymentMethod()).isEqualTo(selectedPaymentMethod);
     }
+
 
     @Test
     public void given_paymentMethodIsSet_when_goToSelectCardIssuers_then_showLoading() {
-        presenter.goToSelectCardIssuers(selectedPaymentMethod);
+        viewModel.getShowLoading().observeForever(showLoadingObserver);
 
-        verify(view).showLoading();
+        viewModel.goToSelectCardIssuers(selectedPaymentMethod);
+
+        assertThat(viewModel.getShowLoading().getValue()).isTrue();
+        verify(showLoadingObserver).onChanged(eq(true));
     }
+
 
     @Test
     public void given_paymentMethodIsSet_when_goToSelectCardIssuers_then_getCardIssuersFromRepository() {
-        presenter.goToSelectCardIssuers(selectedPaymentMethod);
+        viewModel.goToSelectCardIssuers(selectedPaymentMethod);
 
         verify(repository).getCardIssuers(eq(selectedPaymentMethod.getId()), consumerCardIssuersSuccess.capture(), consumerError.capture());
     }
+
 
     @Test
     public void given_repositoryReturnCardIssuers_when_goToSelectCardIssuers_then_hideLoading() throws Exception {
         final List<CardIssuerModel> cardIssuers = getCardIssuerStubs();
+        viewModel.getShowLoading().observeForever(showLoadingObserver);
 
-        presenter.goToSelectCardIssuers(selectedPaymentMethod);
+        viewModel.goToSelectCardIssuers(selectedPaymentMethod);
 
         verify(repository).getCardIssuers(eq(selectedPaymentMethod.getId()), consumerCardIssuersSuccess.capture(), consumerError.capture());
         consumerCardIssuersSuccess.getValue().accept(cardIssuers);
-        verify(view).hideLoading();
+        assertThat(viewModel.getShowLoading().getValue()).isFalse();
+        verify(showLoadingObserver).onChanged(eq(false));
     }
+
 
     @Test
     public void given_repositoryReturnCardIssuers_when_goToSelectCardIssuers_then_showCardIssuers() throws Exception {
         final List<CardIssuerModel> cardIssuers = getCardIssuerStubs();
+        viewModel.getCardIssuers().observeForever(cardIssuersObserver);
 
-        presenter.goToSelectCardIssuers(selectedPaymentMethod);
+        viewModel.goToSelectCardIssuers(selectedPaymentMethod);
 
         verify(repository).getCardIssuers(eq(selectedPaymentMethod.getId()), consumerCardIssuersSuccess.capture(), consumerError.capture());
         consumerCardIssuersSuccess.getValue().accept(cardIssuers);
-        verify(view).showCardIssuers(eq(cardIssuers));
+        assertThat(viewModel.getCardIssuers().getValue()).isEqualTo(cardIssuers);
+        verify(cardIssuersObserver).onChanged(eq(cardIssuers));
     }
+
 
     @Test
     public void given_repositoryReturnError_when_goToSelectCardIssuers_then_hideLoading() throws Exception {
         final HttpException error = new HttpException(Response.error(404, mockErrorBody));
+        viewModel.getShowLoading().observeForever(showLoadingObserver);
 
-        presenter.goToSelectCardIssuers(selectedPaymentMethod);
+        viewModel.goToSelectCardIssuers(selectedPaymentMethod);
 
         verify(repository).getCardIssuers(eq(selectedPaymentMethod.getId()), consumerCardIssuersSuccess.capture(), consumerError.capture());
         consumerError.getValue().accept(error);
-        verify(view).hideLoading();
+        assertThat(viewModel.getShowLoading().getValue()).isFalse();
+        verify(showLoadingObserver).onChanged(false);
     }
+
 
     @Test
     public void given_repositoryReturnError_when_goToSelectCardIssuers_then_showErrorAndRetryMessage() throws Exception {
         final HttpException error = new HttpException(Response.error(404, mockErrorBody));
+        viewModel.getShowErrorMessage().observeForever(eventObserver);
 
-        presenter.goToSelectCardIssuers(selectedPaymentMethod);
+        viewModel.goToSelectCardIssuers(selectedPaymentMethod);
 
         verify(repository).getCardIssuers(eq(selectedPaymentMethod.getId()), consumerCardIssuersSuccess.capture(), consumerError.capture());
         consumerError.getValue().accept(error);
-        verify(view).showCardIssuersErrorAndRetryMessage();
+        assertThat(viewModel.getShowErrorMessage().getValue()).isInstanceOf(Event.class);
+        verify(eventObserver).onChanged(eventCaptor.capture());
     }
 
 
     @Test
     public void given_repositoryReturnZeroCardIssuers_when_goToSelectCardIssuers_then_showNoCardIssuersMessage() throws Exception {
         final List<CardIssuerModel> cardIssuers = new ArrayList<>();
+        viewModel.getShowNoCardIssuersMessage().observeForever(eventObserver);
 
-        presenter.goToSelectCardIssuers(selectedPaymentMethod);
+        viewModel.goToSelectCardIssuers(selectedPaymentMethod);
 
         verify(repository).getCardIssuers(eq(selectedPaymentMethod.getId()), consumerCardIssuersSuccess.capture(), consumerError.capture());
         consumerCardIssuersSuccess.getValue().accept(cardIssuers);
-        verify(view).showNoCardIssuersMessage();
+        assertThat(viewModel.getShowNoCardIssuersMessage().getValue()).isInstanceOf(Event.class);
+        verify(eventObserver).onChanged(eventCaptor.capture());
     }
+
 
     @Test
     public void given_repositoryReturnNull_when_goToSelectCardIssuers_then_showNoCardIssuersMessage() throws Exception {
         final List<CardIssuerModel> cardIssuers = null;
+        viewModel.getShowNoCardIssuersMessage().observeForever(eventObserver);
 
-        presenter.goToSelectCardIssuers(selectedPaymentMethod);
+        viewModel.goToSelectCardIssuers(selectedPaymentMethod);
 
         verify(repository).getCardIssuers(eq(selectedPaymentMethod.getId()), consumerCardIssuersSuccess.capture(), consumerError.capture());
         consumerCardIssuersSuccess.getValue().accept(cardIssuers);
-        verify(view).showNoCardIssuersMessage();
+        assertThat(viewModel.getShowNoCardIssuersMessage().getValue()).isInstanceOf(Event.class);
+        verify(eventObserver).onChanged(eventCaptor.capture());
     }
+
 
     @Test
     public void given_paramIsNull_when_goToSelectCardIssuers_then_doNothing() {
         final PaymentMethodModel selectedPaymentMethod = null;
 
-        presenter.goToSelectCardIssuers(selectedPaymentMethod);
+        viewModel.goToSelectCardIssuers(selectedPaymentMethod);
 
+        verifyZeroInteractions(showLoadingObserver);
         verifyZeroInteractions(repository);
-        verifyZeroInteractions(view);
+        verifyZeroInteractions(cardIssuersObserver);
+        verifyZeroInteractions(eventObserver);
     }
 
+    @Test
+    public void given_selectedPaymentMethodIdIsNull_when_goToSelectCardIssuers_then_doNothing() {
+        selectedPaymentMethod.setId(null);
+
+        viewModel.goToSelectCardIssuers(selectedPaymentMethod);
+
+        verifyZeroInteractions(showLoadingObserver);
+        verifyZeroInteractions(repository);
+        verifyZeroInteractions(cardIssuersObserver);
+        verifyZeroInteractions(eventObserver);
+    }
+
+    @Test
+    public void given_selectedPaymentMethodIdIsEmpty_when_goToSelectCardIssuers_then_doNothing() {
+        selectedPaymentMethod.setId("");
+
+        viewModel.goToSelectCardIssuers(selectedPaymentMethod);
+
+        verifyZeroInteractions(showLoadingObserver);
+        verifyZeroInteractions(repository);
+        verifyZeroInteractions(cardIssuersObserver);
+        verifyZeroInteractions(eventObserver);
+    }
+
+    /*
     @Test
     public void given_selectedCuotaIsSet_when_showPaymentData_then_showDataInFirstView() {
         doReturn(4000L).when(paymentDataCollector).getAmount();
@@ -265,6 +349,7 @@ public class PaymentPresenterTest {
 
     //TODO agregar caso de obtencion de informacion de cuotas
 
+    */
     private List<PaymentMethodModel> getPaymentMethodStubs() {
         return Arrays.asList(
                 new PaymentMethodModel("visa", "Visa", "active", "http://img.mlstatic.com/org-img/MP3/API/logos/naranja.gif"),
@@ -278,5 +363,4 @@ public class PaymentPresenterTest {
                 new CardIssuerModel("294", "Banco Hipotecario", "http://img.mlstatic.com/org-img/MP3/API/logos/294.gif")
         );
     }
-
 }
