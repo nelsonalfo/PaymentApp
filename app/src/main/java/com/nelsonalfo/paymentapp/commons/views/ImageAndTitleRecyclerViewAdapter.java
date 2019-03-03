@@ -49,6 +49,11 @@ public abstract class ImageAndTitleRecyclerViewAdapter<T> extends RecyclerView.A
 
     public abstract ImageAndTitleViewHolder<T> getViewHolder(View view);
 
+    public void setData(List<T> data){
+        dataSource = data;
+        notifyDataSetChanged();
+    }
+
     public interface Listener<T>{
         void onItemSelected(T item);
     }

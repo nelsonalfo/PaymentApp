@@ -1,35 +1,14 @@
 package com.nelsonalfo.paymentapp.presentation.cardissuers;
 
-import android.arch.lifecycle.ViewModelProviders;
-import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
 import com.nelsonalfo.paymentapp.R;
+import com.nelsonalfo.paymentapp.commons.views.PaymentStepsFragment;
 import com.nelsonalfo.paymentapp.models.CardIssuerModel;
-import com.nelsonalfo.paymentapp.presentation.viewmodel.PaymentStepsViewModel;
-import com.nelsonalfo.paymentapp.commons.views.ImageAndTitleRecyclerViewAdapter;
 
+import java.util.Collections;
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-
-import static java.util.Objects.requireNonNull;
-
-public class CardIssuersFragment extends Fragment implements
-        ImageAndTitleRecyclerViewAdapter.Listener<CardIssuerModel> {
-
-    @BindView(R.id.card_issuers_recycler_view)
-    RecyclerView recyclerView;
-    private PaymentStepsViewModel viewModel;
-
+public class CardIssuersFragment extends PaymentStepsFragment<CardIssuerModel> {
+    private CardIssuersAdapter adapter;
 
     public CardIssuersFragment() {
     }
@@ -38,31 +17,27 @@ public class CardIssuersFragment extends Fragment implements
         return new CardIssuersFragment();
     }
 
+
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        viewModel = ViewModelProviders.of(requireNonNull(getActivity())).get(PaymentStepsViewModel.class);
+    public void observe() {
         viewModel.cardIssuers.observe(this, this::showCardIssuers);
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View rootView = inflater.inflate(R.layout.fragment_card_issuers, container, false);
-        ButterKnife.bind(this, rootView);
-
-        return rootView;
+    protected int getTitle() {
+        return R.string.card_issuers_title;
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setHasFixedSize(true);
+    public CardIssuersAdapter getAdapter() {
+        if(adapter == null){
+            adapter = new CardIssuersAdapter(Collections.emptyList(), this);
+        }
+        return adapter;
     }
 
     public void showCardIssuers(List<CardIssuerModel> cardIssuers) {
-        final CardIssuersAdapter adapter = new CardIssuersAdapter(cardIssuers, this);
-        recyclerView.setAdapter(adapter);
+        getAdapter().setData(cardIssuers);
     }
 
     @Override
