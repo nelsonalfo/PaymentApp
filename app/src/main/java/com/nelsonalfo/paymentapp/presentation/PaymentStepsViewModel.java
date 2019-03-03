@@ -26,6 +26,7 @@ public class PaymentStepsViewModel extends ViewModel {
     public final MutableLiveData<Event<Boolean>> showErrorMessage = new MutableLiveData<>();
     public final MutableLiveData<Event<Boolean>> showNoPaymentMethodsMessage = new MutableLiveData<>();
     public final MutableLiveData<Event<Boolean>> showNoCardIssuersMessage = new MutableLiveData<>();
+    public final MutableLiveData<Event<Boolean>> showNoCuotasMessage = new MutableLiveData<>();
 
 
     void setRepository(PaymentRepository repository) {
@@ -81,8 +82,7 @@ public class PaymentStepsViewModel extends ViewModel {
         }
     }
 
-
-    public void fetchInstallments(CardIssuerModel selectedCardIssuer) {
+    public void fetchCuotas(CardIssuerModel selectedCardIssuer) {
         if (selectedCardIssuer != null && containsId(selectedCardIssuer.getId())) {
             cardIssuer = selectedCardIssuer;
 
@@ -93,11 +93,16 @@ public class PaymentStepsViewModel extends ViewModel {
                 repository.getCuotas(params, this::showCuotas, error -> showErrorMessage());
             }
         }
-
     }
 
     private void showCuotas(List<CuotaModel> cuotas) {
+        showLoading.setValue(false);
 
+        if (cuotas != null && !cuotas.isEmpty()) {
+            this.cuotas.setValue(cuotas);
+        } else {
+            showNoCuotasMessage.setValue(new Event<>(true));
+        }
     }
 
     public long getAmount() {

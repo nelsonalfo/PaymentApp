@@ -68,6 +68,6 @@ public class CardIssuersFragment extends Fragment implements
 
     @Override
     public void onItemSelected(CardIssuerModel item) {
-        viewModel.fetchInstallments(item);
+        viewModel.fetchCuotas(item);
     }
 }
