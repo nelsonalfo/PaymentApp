@@ -6,7 +6,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 
 import com.nelsonalfo.paymentapp.presentation.amount.AmountFragment;
 import com.nelsonalfo.paymentapp.presentation.cardissuers.CardIssuersFragment;
-import com.nelsonalfo.paymentapp.presentation.fragments.CuotasFragment;
+import com.nelsonalfo.paymentapp.presentation.cuotas.CuotasFragment;
 import com.nelsonalfo.paymentapp.presentation.paymentmethods.PaymentMethodsFragment;
 
 import java.util.ArrayList;

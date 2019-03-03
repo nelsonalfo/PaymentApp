@@ -1,4 +1,4 @@
-package com.nelsonalfo.paymentapp.presentation.fragments;
+package com.nelsonalfo.paymentapp.presentation.cuotas;
 
 import android.view.View;
 
