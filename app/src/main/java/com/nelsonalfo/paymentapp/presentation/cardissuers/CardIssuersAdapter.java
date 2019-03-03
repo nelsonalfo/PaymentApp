@@ -9,7 +9,7 @@ import java.util.List;
 
 public class CardIssuersAdapter extends ImageAndTitleRecyclerViewAdapter<CardIssuer> {
 
-    public CardIssuersAdapter(List<CardIssuer> dataSource, Listener<CardIssuer> listener) {
+    CardIssuersAdapter(List<CardIssuer> dataSource, Listener<CardIssuer> listener) {
         super(dataSource, listener);
     }
 

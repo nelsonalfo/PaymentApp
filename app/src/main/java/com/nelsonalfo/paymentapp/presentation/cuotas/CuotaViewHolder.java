@@ -8,7 +8,7 @@ import com.nelsonalfo.paymentapp.commons.views.ImageAndTitleViewHolder;
 
 public class CuotaViewHolder extends ImageAndTitleViewHolder<Cuota> {
 
-    public CuotaViewHolder(@NonNull View itemView) {
+    CuotaViewHolder(@NonNull View itemView) {
         super(itemView);
     }
 

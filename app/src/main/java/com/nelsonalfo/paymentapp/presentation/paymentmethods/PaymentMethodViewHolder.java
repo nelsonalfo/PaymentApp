@@ -9,7 +9,7 @@ import com.squareup.picasso.Picasso;
 
 public class PaymentMethodViewHolder extends ImageAndTitleViewHolder<PaymentMethod> {
 
-    public PaymentMethodViewHolder(@NonNull View itemView) {
+    PaymentMethodViewHolder(@NonNull View itemView) {
         super(itemView);
     }
 

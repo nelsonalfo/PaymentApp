@@ -10,7 +10,7 @@ public class SelectedData {
     public final CardIssuer cardIssuer;
     public final Cuota cuota;
 
-    public SelectedData(long amount, PaymentMethod paymentMethod, CardIssuer cardIssuer, Cuota cuota) {
+    SelectedData(long amount, PaymentMethod paymentMethod, CardIssuer cardIssuer, Cuota cuota) {
         this.amount = amount;
         this.paymentMethod = paymentMethod;
         this.cardIssuer = cardIssuer;

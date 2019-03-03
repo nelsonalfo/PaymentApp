@@ -38,10 +38,10 @@ public abstract class PaymentStepsFragment<T> extends Fragment implements ImageA
         super.onCreate(savedInstanceState);
         viewModel = ViewModelProviders.of(requireNonNull(getActivity())).get(PaymentStepsViewModel.class);
 
-        observe();
+        bindWithViewModel();
     }
 
-    public abstract void observe();
+    public abstract void bindWithViewModel();
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

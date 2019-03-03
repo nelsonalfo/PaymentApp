@@ -10,16 +10,13 @@ import java.util.List;
 public class CuotasFragment extends PaymentStepsFragment<Cuota> {
     private CuotasAdapter adapter;
 
-    public CuotasFragment() {
-    }
-
     public static CuotasFragment newInstance() {
         return new CuotasFragment();
     }
 
 
     @Override
-    public void observe() {
+    public void bindWithViewModel() {
         viewModel.cuotas.observe(this, this::showCuotas);
     }
 

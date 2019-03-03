@@ -9,7 +9,7 @@ import java.util.List;
 
 public class PaymentMethodsAdapter extends ImageAndTitleRecyclerViewAdapter<PaymentMethod> {
 
-    public PaymentMethodsAdapter(List<PaymentMethod> dataSource, Listener<PaymentMethod> listener) {
+    PaymentMethodsAdapter(List<PaymentMethod> dataSource, Listener<PaymentMethod> listener) {
         super(dataSource, listener);
     }
 

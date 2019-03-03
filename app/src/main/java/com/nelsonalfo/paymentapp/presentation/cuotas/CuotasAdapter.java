@@ -9,7 +9,7 @@ import java.util.List;
 
 public class CuotasAdapter extends ImageAndTitleRecyclerViewAdapter<Cuota> {
 
-    public CuotasAdapter(List<Cuota> dataSource, Listener<Cuota> listener) {
+    CuotasAdapter(List<Cuota> dataSource, Listener<Cuota> listener) {
         super(dataSource, listener);
     }
 

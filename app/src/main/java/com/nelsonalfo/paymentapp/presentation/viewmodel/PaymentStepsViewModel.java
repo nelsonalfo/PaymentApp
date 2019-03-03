@@ -105,15 +105,15 @@ public class PaymentStepsViewModel extends ViewModel {
         selectedDataMessage.setValue(new Event<>(selectedData));
     }
 
-    public long getAmount() {
+    long getAmount() {
         return amount;
     }
 
-    public PaymentMethod getSelectedPaymentMethod() {
+    PaymentMethod getSelectedPaymentMethod() {
         return paymentMethod;
     }
 
-    public CardIssuer getCardIssuer() {
+    CardIssuer getCardIssuer() {
         return cardIssuer;
     }
 }

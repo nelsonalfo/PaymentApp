@@ -13,14 +13,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PaymentStepsAdapter extends FragmentPagerAdapter {
-    public static final int AMOUNT = 0;
-    public static final int PAYMENT_METHODS = 1;
-    public static final int CARD_ISSUERS = 2;
-    public static final int CUOTAS = 3;
+    static final int AMOUNT = 0;
+    static final int PAYMENT_METHODS = 1;
+    static final int CARD_ISSUERS = 2;
+    static final int CUOTAS = 3;
 
     private final List<Fragment> paymentSteps;
 
-    public PaymentStepsAdapter(FragmentManager fm) {
+    PaymentStepsAdapter(FragmentManager fm) {
         super(fm);
 
         paymentSteps = new ArrayList<>();

@@ -10,16 +10,13 @@ import java.util.List;
 public class CardIssuersFragment extends PaymentStepsFragment<CardIssuer> {
     private CardIssuersAdapter adapter;
 
-    public CardIssuersFragment() {
-    }
-
     public static CardIssuersFragment newInstance() {
         return new CardIssuersFragment();
     }
 
 
     @Override
-    public void observe() {
+    public void bindWithViewModel() {
         viewModel.cardIssuers.observe(this, this::showCardIssuers);
     }
 

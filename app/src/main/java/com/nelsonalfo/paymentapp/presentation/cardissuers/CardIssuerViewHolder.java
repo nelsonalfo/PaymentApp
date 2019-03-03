@@ -9,7 +9,7 @@ import com.squareup.picasso.Picasso;
 
 public class CardIssuerViewHolder extends ImageAndTitleViewHolder<CardIssuer> {
 
-    public CardIssuerViewHolder(@NonNull View itemView) {
+    CardIssuerViewHolder(@NonNull View itemView) {
         super(itemView);
     }
 

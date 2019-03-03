@@ -11,7 +11,6 @@ public class Cuota {
     private String recommendedMessage;
 
 
-
     public Cuota() {
     }
 

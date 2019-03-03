@@ -10,16 +10,13 @@ import java.util.List;
 public class PaymentMethodsFragment extends PaymentStepsFragment<PaymentMethod> {
     private PaymentMethodsAdapter adapter;
 
-    public PaymentMethodsFragment() {
-    }
-
     public static PaymentMethodsFragment newInstance() {
         return new PaymentMethodsFragment();
     }
 
 
     @Override
-    public void observe() {
+    public void bindWithViewModel() {
         viewModel.paymentMethods.observe(this, this::showPaymentMethods);
     }
 
