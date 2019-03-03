@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import com.nelsonalfo.paymentapp.R;
 import com.nelsonalfo.paymentapp.commons.views.NonSwipeableViewPager;
+import com.nelsonalfo.paymentapp.data.PaymentRepository;
 import com.nelsonalfo.paymentapp.models.CardIssuerModel;
 import com.nelsonalfo.paymentapp.models.PaymentMethodModel;
 import com.nelsonalfo.paymentapp.presentation.adapters.PaymentStepsAdapter;
@@ -14,13 +15,18 @@ import com.nelsonalfo.paymentapp.presentation.fragments.PaymentMethodsFragment;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import dagger.android.support.DaggerAppCompatActivity;
 
-public class PaymentActivity extends DaggerAppCompatActivity implements
+public class PaymentStepsActivity extends DaggerAppCompatActivity implements
         AmountFragment.Listener,
         PaymentMethodsFragment.Listener {
+
+    @Inject
+    PaymentRepository repository;
 
     @BindView(R.id.payment_steps_view_pager)
     NonSwipeableViewPager viewPager;
@@ -28,7 +34,7 @@ public class PaymentActivity extends DaggerAppCompatActivity implements
     private PaymentStepsAdapter adapter;
     private AlertDialog loadingDialog;
 
-    private PaymentViewModel viewModel;
+    private PaymentStepsViewModel viewModel;
 
 
     @Override
@@ -48,13 +54,15 @@ public class PaymentActivity extends DaggerAppCompatActivity implements
     }
 
     private void bindWithViewModel() {
-        viewModel = ViewModelProviders.of(this).get(PaymentViewModel.class);
-        viewModel.getShowLoading().observe(this, this::showLoading);
-        viewModel.getShowErrorMessage().observe(this, this::showErrorMessage);
-        viewModel.getCardIssuers().observe(this, this::showCardIssuers);
-        viewModel.getPaymentMethods().observe(this, this::showPaymentMethods);
-        viewModel.getShowNoCardIssuersMessage().observe(this, this::showNoCardIssuersMessage);
-        viewModel.getShowNoPaymentMethodsMessage().observe(this, this::showNoPaymentMethodsMessage);
+        viewModel = ViewModelProviders.of(this).get(PaymentStepsViewModel.class);
+        viewModel.setRepository(repository);
+
+        viewModel.getShowLoadingLiveData().observe(this, this::showLoading);
+        viewModel.getShowErrorMessageLiveData().observe(this, this::showErrorMessage);
+        viewModel.getCardIssuersLiveData().observe(this, this::showCardIssuers);
+        viewModel.getPaymentMethodsLiveData().observe(this, this::showPaymentMethods);
+        viewModel.getShowNoCardIssuersMessageLiveData().observe(this, this::showNoCardIssuersMessage);
+        viewModel.getShowNoPaymentMethodsMessageLiveData().observe(this, this::showNoPaymentMethodsMessage);
     }
 
 
@@ -100,7 +108,7 @@ public class PaymentActivity extends DaggerAppCompatActivity implements
 
     @Override
     public void onPaymentMethodSelected(PaymentMethodModel selectedPaymentMethod) {
-
+        viewModel.goToSelectCardIssuers(selectedPaymentMethod);
     }
 
     public void showPaymentMethodsErrorAndRetryMessage() {

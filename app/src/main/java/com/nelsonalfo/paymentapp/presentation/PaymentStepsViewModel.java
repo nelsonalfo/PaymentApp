@@ -10,8 +10,7 @@ import com.nelsonalfo.paymentapp.models.PaymentMethodModel;
 
 import java.util.List;
 
-
-public class PaymentViewModel extends ViewModel {
+public class PaymentStepsViewModel extends ViewModel {
     private PaymentRepository repository;
 
     private long amount;
@@ -75,6 +74,7 @@ public class PaymentViewModel extends ViewModel {
         }
     }
 
+
     public long getAmount() {
         return amount;
     }
@@ -83,27 +83,28 @@ public class PaymentViewModel extends ViewModel {
         return paymentMethod;
     }
 
-    public LiveData<List<PaymentMethodModel>> getPaymentMethods() {
+
+    public LiveData<List<PaymentMethodModel>> getPaymentMethodsLiveData() {
         return paymentMethods;
     }
 
-    public LiveData<Boolean> getShowLoading() {
+    public LiveData<Boolean> getShowLoadingLiveData() {
         return showLoading;
     }
 
-    public LiveData<Event<Boolean>> getShowErrorMessage() {
+    public LiveData<Event<Boolean>> getShowErrorMessageLiveData() {
         return showErrorMessage;
     }
 
-    public LiveData<Event<Boolean>> getShowNoPaymentMethodsMessage() {
+    public LiveData<Event<Boolean>> getShowNoPaymentMethodsMessageLiveData() {
         return showNoPaymentMethodsMessage;
     }
 
-    public LiveData<List<CardIssuerModel>> getCardIssuers() {
+    public LiveData<List<CardIssuerModel>> getCardIssuersLiveData() {
         return cardIssuers;
     }
 
-    public LiveData<Event<Boolean>> getShowNoCardIssuersMessage() {
+    public LiveData<Event<Boolean>> getShowNoCardIssuersMessageLiveData() {
         return showNoCardIssuersMessage;
     }
 }

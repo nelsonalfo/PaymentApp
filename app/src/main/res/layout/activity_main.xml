@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".presentation.PaymentActivity">
+    tools:context=".presentation.PaymentStepsActivity">
 
     <com.nelsonalfo.paymentapp.commons.views.NonSwipeableViewPager
         android:id="@+id/payment_steps_view_pager"

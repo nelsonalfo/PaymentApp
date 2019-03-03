@@ -1,6 +1,6 @@
 package com.nelsonalfo.paymentapp.di.module;
 
-import com.nelsonalfo.paymentapp.presentation.PaymentActivity;
+import com.nelsonalfo.paymentapp.presentation.PaymentStepsActivity;
 
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
@@ -9,5 +9,5 @@ import dagger.android.ContributesAndroidInjector;
 public abstract class ActivityModule {
 
     @ContributesAndroidInjector(modules = PaymentModule.class)
-    public abstract PaymentActivity providesPaymentActivity();
+    public abstract PaymentStepsActivity providesPaymentActivity();
 }
