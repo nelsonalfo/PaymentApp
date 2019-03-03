@@ -1,5 +1,7 @@
 package com.nelsonalfo.paymentapp.di.module;
 
+import com.nelsonalfo.paymentapp.data.PaymentApi;
+
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -38,5 +40,11 @@ public class NetworkModule {
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create());
 
         return builder.client(okHttpClient).build();
+    }
+
+    @Singleton
+    @Provides
+    PaymentApi providesPaymentApi(Retrofit retrofit) {
+        return retrofit.create(PaymentApi.class);
     }
 }
