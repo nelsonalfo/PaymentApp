@@ -36,8 +36,6 @@ public class PaymentStepsActivity extends DaggerAppCompatActivity {
 
     private AlertDialog loadingDialog;
 
-    private PaymentStepsViewModel viewModel;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,12 +50,11 @@ public class PaymentStepsActivity extends DaggerAppCompatActivity {
 
         bindWithViewModel();
 
-        final PaymentStepsAdapter adapter = new PaymentStepsAdapter(getSupportFragmentManager());
-        viewPager.setAdapter(adapter);
+        viewPager.setAdapter(new PaymentStepsAdapter(getSupportFragmentManager()));
     }
 
     private void bindWithViewModel() {
-        viewModel = ViewModelProviders.of(this).get(PaymentStepsViewModel.class);
+        final PaymentStepsViewModel viewModel = ViewModelProviders.of(this).get(PaymentStepsViewModel.class);
         viewModel.setRepository(repository);
 
         viewModel.cardIssuers.observe(this, cardIssuers -> goToCardIssuers());
@@ -69,7 +66,7 @@ public class PaymentStepsActivity extends DaggerAppCompatActivity {
         viewModel.showNoCuotasMessage.observe(this, this::showNoCuotasMessage);
         viewModel.showNoCardIssuersMessage.observe(this, this::showNoCardIssuersMessage);
         viewModel.showNoPaymentMethodsMessage.observe(this, this::showNoPaymentMethodsMessage);
-        viewModel.selectedDataMessage.observe(this,this::showSelectedData);
+        viewModel.selectedDataMessage.observe(this, this::showSelectedData);
 
     }
 
@@ -92,7 +89,6 @@ public class PaymentStepsActivity extends DaggerAppCompatActivity {
             loadingDialog.hide();
         }
     }
-
 
     private void showErrorMessage(Event<Boolean> event) {
         if (event.getContentIfNotHandled() != null) {
@@ -122,8 +118,6 @@ public class PaymentStepsActivity extends DaggerAppCompatActivity {
         final SelectedData selectedData = event.getContentIfNotHandled();
         if (selectedData != null) {
             viewPager.setCurrentItem(AMOUNT);
-
-
 
             new AlertDialog.Builder(this)
                     .setMessage(getMessage(selectedData))
