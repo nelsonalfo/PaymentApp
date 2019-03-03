@@ -4,7 +4,9 @@ import android.arch.core.executor.testing.InstantTaskExecutorRule;
 import android.arch.lifecycle.Observer;
 
 import com.nelsonalfo.paymentapp.data.PaymentRepository;
+import com.nelsonalfo.paymentapp.data.PaymentRepository.Params;
 import com.nelsonalfo.paymentapp.models.CardIssuerModel;
+import com.nelsonalfo.paymentapp.models.CuotaModel;
 import com.nelsonalfo.paymentapp.models.PaymentMethodModel;
 
 import org.junit.Before;
@@ -27,6 +29,7 @@ import retrofit2.Response;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
@@ -44,6 +47,8 @@ public class PaymentStepsViewModelTest {
     @Mock
     private Observer<List<CardIssuerModel>> cardIssuersObserver;
     @Mock
+    private Observer<List<CuotaModel>> cuotasObserver;
+    @Mock
     private PaymentRepository repository;
     @Mock
     private ResponseBody mockErrorBody;
@@ -53,9 +58,13 @@ public class PaymentStepsViewModelTest {
     @Captor
     private ArgumentCaptor<Consumer<List<CardIssuerModel>>> consumerCardIssuersSuccess;
     @Captor
+    private ArgumentCaptor<Consumer<List<CuotaModel>>> consumerCuotasSuccess;
+    @Captor
     private ArgumentCaptor<Consumer<Throwable>> consumerError;
     @Captor
     private ArgumentCaptor<Event<Boolean>> eventCaptor;
+    @Captor
+    private ArgumentCaptor<Params> paramsCaptor;
 
     private PaymentMethodModel selectedPaymentMethod;
     private long montoIngresado;
@@ -75,7 +84,7 @@ public class PaymentStepsViewModelTest {
     }
 
     @Test
-    public void given_montoIsSet_when_gotToSelectPaymentMethod_then_saveMontoInPaymentCollector() {
+    public void given_montoIsSet_when_gotToSelectPaymentMethod_then_saveMonto() {
         viewModel.fetchPaymentMethods(montoIngresado);
 
         assertThat(viewModel.getAmount()).isEqualTo(montoIngresado);
@@ -190,7 +199,7 @@ public class PaymentStepsViewModelTest {
     }
 
     @Test
-    public void given_paymentMethodIsSet_when_fetchCardIssuers_then_saveMontoInPaymentCollector() {
+    public void given_paymentMethodIsSet_when_fetchCardIssuers_then_saveSelectedPaymentMethod() {
         viewModel.fetchCardIssuers(selectedPaymentMethod);
 
         assertThat(viewModel.getSelectedPaymentMethod()).isEqualTo(selectedPaymentMethod);
@@ -346,31 +355,110 @@ public class PaymentStepsViewModelTest {
 
     @Test
     public void given_cardIssuerIsSet_when_fetchInstallments_then_showLoading() {
+        viewModel.fetchPaymentMethods(montoIngresado);
+        viewModel.fetchCardIssuers(selectedPaymentMethod);
+        viewModel.showLoading.observeForever(showLoadingObserver);
+
         viewModel.fetchInstallments(selectedCardIssuer);
+
+        assertThat(viewModel.showLoading.getValue()).isTrue();
+        verify(showLoadingObserver, atLeastOnce()).onChanged(true);
+    }
+
+    @Test
+    public void given_cardIssuerIsSet_when_fetchInstallments_then_saveSelectedCardIssuer() {
+        viewModel.fetchPaymentMethods(montoIngresado);
+        viewModel.fetchCardIssuers(selectedPaymentMethod);
+
+        viewModel.fetchInstallments(selectedCardIssuer);
+
+        assertThat(viewModel.getCardIssuer()).isEqualTo(selectedCardIssuer);
+    }
+
+    @Test
+    public void given_cardIssuerIsSet_when_fetchInstallments_then_getCuotasFromRepository() {
+        viewModel.fetchPaymentMethods(montoIngresado);
+        viewModel.fetchCardIssuers(selectedPaymentMethod);
+
+        viewModel.fetchInstallments(selectedCardIssuer);
+
+        verify(repository).getCuotas(paramsCaptor.capture(), consumerCuotasSuccess.capture(), consumerError.capture());
+        assertThat(paramsCaptor.getValue().monto).isEqualTo(montoIngresado);
+        assertThat(paramsCaptor.getValue().paymentMethodId).isEqualTo(selectedPaymentMethod.getId());
+        assertThat(paramsCaptor.getValue().issuerId).isEqualTo(selectedCardIssuer.getId());
+
+    }
+
+    @Test
+    public void given_dataIsAlreadySet_when_fetchInstallments_then_showTheDataAlreadySet() {
+        final List<CuotaModel> cuotaStubs = getCuotaStubs();
+        viewModel.cuotas.observeForever(cuotasObserver);
+        viewModel.cuotas.setValue(cuotaStubs);
+
+        viewModel.fetchInstallments(selectedCardIssuer);
+
+        verifyZeroInteractions(showLoadingObserver);
+        verifyZeroInteractions(repository);
+        verify(cuotasObserver).onChanged(eq(cuotaStubs));
+    }
+
+    @Test
+    public void given_paramIsNull_when_fetchInstallments_then_doNothing() {
+        viewModel.fetchInstallments(null);
+
+        verifyZeroInteractions(showLoadingObserver);
+        verifyZeroInteractions(repository);
+        verifyZeroInteractions(cuotasObserver);
+        verifyZeroInteractions(eventObserver);
+    }
+
+    @Test
+    public void given_paramIdIsNull_when_fetchInstallments_then_doNothing() {
+        selectedCardIssuer.setId(null);
+
+        viewModel.fetchInstallments(selectedCardIssuer);
+
+        verifyZeroInteractions(showLoadingObserver);
+        verifyZeroInteractions(repository);
+        verifyZeroInteractions(cuotasObserver);
+        verifyZeroInteractions(eventObserver);
+    }
+
+    @Test
+    public void given_paramIdIsEmpty_when_fetchInstallments_then_doNothing() {
+        selectedCardIssuer.setId("");
+
+        viewModel.fetchInstallments(selectedCardIssuer);
+
+        verifyZeroInteractions(showLoadingObserver);
+        verifyZeroInteractions(repository);
+        verifyZeroInteractions(cuotasObserver);
+        verifyZeroInteractions(eventObserver);
     }
 
     /*
-        @Test
-        public void given_selectedCuotaIsSet_when_showPaymentData_then_showDataInFirstView() {
-            doReturn(4000L).when(paymentDataCollector).getAmount();
-            doReturn("Mastercard").when(paymentDataCollector).getFormattedPaymentMethod();
-            doReturn("Banco Comafi").when(paymentDataCollector).getFormattedCardIssuer();
-            doReturn("3 cuotas de $ 1.596,27 ($ 4.788,80)").when(paymentDataCollector).getFormattedCuota();
-            final CuotaModel selectedCuota = new CuotaModel(3, "3 cuotas de $ 1.596,27 ($ 4.788,80)");
-    
-            presenter.showPaymentData(selectedCuota);
-    
-            verify(view).showDataInFirstView(
-                    paymentDataCollector.getAmount(),
-                    paymentDataCollector.getFormattedPaymentMethod(),
-                    paymentDataCollector.getFormattedCardIssuer(),
-                    paymentDataCollector.getFormattedCuota()
-            );
-        }
-    
-        //TODO agregar caso de obtencion de informacion de cuotas
-    
-        */
+            @Test
+            public void given_selectedCuotaIsSet_when_showPaymentData_then_showDataInFirstView() {
+                doReturn(4000L).when(paymentDataCollector).getAmount();
+                doReturn("Mastercard").when(paymentDataCollector).getFormattedPaymentMethod();
+                doReturn("Banco Comafi").when(paymentDataCollector).getFormattedCardIssuer();
+                doReturn("3 cuotas de $ 1.596,27 ($ 4.788,80)").when(paymentDataCollector).getFormattedCuota();
+                final CuotaModel selectedCuota = new CuotaModel(3, "3 cuotas de $ 1.596,27 ($ 4.788,80)");
+
+                presenter.showPaymentData(selectedCuota);
+
+                verify(view).showDataInFirstView(
+                        paymentDataCollector.getAmount(),
+                        paymentDataCollector.getFormattedPaymentMethod(),
+                        paymentDataCollector.getFormattedCardIssuer(),
+                        paymentDataCollector.getFormattedCuota()
+                );
+            }
+
+            //TODO agregar caso de obtencion de informacion de cuotas
+
+            */
+
     private List<PaymentMethodModel> getPaymentMethodStubs() {
         return Arrays.asList(
                 new PaymentMethodModel("visa", "Visa", "active", "http://img.mlstatic.com/org-img/MP3/API/logos/naranja.gif"),
@@ -382,6 +470,13 @@ public class PaymentStepsViewModelTest {
         return Arrays.asList(
                 new CardIssuerModel("272", "Banco Comafi", "http://img.mlstatic.com/org-img/MP3/API/logos/272.gif"),
                 new CardIssuerModel("294", "Banco Hipotecario", "http://img.mlstatic.com/org-img/MP3/API/logos/294.gif")
+        );
+    }
+
+    private List<CuotaModel> getCuotaStubs() {
+        return Arrays.asList(
+                new CuotaModel(1, "1 cuota de $ 4.000,00 ($ 4.000,00)"),
+                new CuotaModel(3, "3 cuotas de $ 1.596,27 ($ 4.788,80)")
         );
     }
 }

@@ -4,7 +4,9 @@ import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 
 import com.nelsonalfo.paymentapp.data.PaymentRepository;
+import com.nelsonalfo.paymentapp.data.PaymentRepository.Params;
 import com.nelsonalfo.paymentapp.models.CardIssuerModel;
+import com.nelsonalfo.paymentapp.models.CuotaModel;
 import com.nelsonalfo.paymentapp.models.PaymentMethodModel;
 
 import java.util.List;
@@ -14,9 +16,11 @@ public class PaymentStepsViewModel extends ViewModel {
 
     private long amount;
     private PaymentMethodModel paymentMethod;
+    private CardIssuerModel cardIssuer;
 
     public final MutableLiveData<List<PaymentMethodModel>> paymentMethods = new MutableLiveData<>();
     public final MutableLiveData<List<CardIssuerModel>> cardIssuers = new MutableLiveData<>();
+    public final MutableLiveData<List<CuotaModel>> cuotas = new MutableLiveData<>();
 
     public final MutableLiveData<Boolean> showLoading = new MutableLiveData<>();
     public final MutableLiveData<Event<Boolean>> showErrorMessage = new MutableLiveData<>();
@@ -53,19 +57,18 @@ public class PaymentStepsViewModel extends ViewModel {
     }
 
     public void fetchCardIssuers(PaymentMethodModel selectedPaymentMethod) {
-        if (selectedPaymentMethod != null && containsId(selectedPaymentMethod)) {
+        if (selectedPaymentMethod != null && containsId(selectedPaymentMethod.getId())) {
             this.paymentMethod = selectedPaymentMethod;
 
             if (cardIssuers.getValue() == null) {
                 showLoading.setValue(true);
                 repository.getCardIssuers(selectedPaymentMethod.getId(), this::showCardIssuers, error -> showErrorMessage());
             }
-
         }
     }
 
-    private boolean containsId(PaymentMethodModel selectedPaymentMethod) {
-        return selectedPaymentMethod.getId() != null && !selectedPaymentMethod.getId().isEmpty();
+    private boolean containsId(String id) {
+        return id != null && !id.isEmpty();
     }
 
     private void showCardIssuers(List<CardIssuerModel> cardIssuers) {
@@ -80,6 +83,20 @@ public class PaymentStepsViewModel extends ViewModel {
 
 
     public void fetchInstallments(CardIssuerModel selectedCardIssuer) {
+        if (selectedCardIssuer != null && containsId(selectedCardIssuer.getId())) {
+            cardIssuer = selectedCardIssuer;
+
+            if (cuotas.getValue() == null) {
+                showLoading.setValue(true);
+
+                final Params params = new Params(amount, paymentMethod.getId(), cardIssuer.getId());
+                repository.getCuotas(params, this::showCuotas, error -> showErrorMessage());
+            }
+        }
+
+    }
+
+    private void showCuotas(List<CuotaModel> cuotas) {
 
     }
 
@@ -89,5 +106,9 @@ public class PaymentStepsViewModel extends ViewModel {
 
     public PaymentMethodModel getSelectedPaymentMethod() {
         return paymentMethod;
+    }
+
+    public CardIssuerModel getCardIssuer() {
+        return cardIssuer;
     }
 }
