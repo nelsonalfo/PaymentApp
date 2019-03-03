@@ -16,8 +16,8 @@ public class StubsFactory {
 
     public static List<PaymentMethodModel> getPaymentMethodStubs() {
         return Arrays.asList(
-                new PaymentMethodModel("visa", "Visa", "active", "http://img.mlstatic.com/org-img/MP3/API/logos/naranja.gif"),
-                new PaymentMethodModel("master", "Mastercard", "active", "http://img.mlstatic.com/org-img/MP3/API/logos/master.gif")
+                new PaymentMethodModel("visa", "Visa", "credit_card", "active", "http://img.mlstatic.com/org-img/MP3/API/logos/naranja.gif"),
+                new PaymentMethodModel("master", "Mastercard", "credit_card", "active", "http://img.mlstatic.com/org-img/MP3/API/logos/master.gif")
         );
     }
 

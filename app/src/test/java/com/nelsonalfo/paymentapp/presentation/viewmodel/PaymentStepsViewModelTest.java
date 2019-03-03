@@ -85,7 +85,7 @@ public class PaymentStepsViewModelTest {
     @Before
     public void setUp() {
         montoIngresado = 4000;
-        selectedPaymentMethod = new PaymentMethodModel("visa", "Visa", "active", "http://img.mlstatic.com/org-img/MP3/API/logos/naranja.gif");
+        selectedPaymentMethod = new PaymentMethodModel("visa", "Visa", "credit_card", "active", "http://img.mlstatic.com/org-img/MP3/API/logos/naranja.gif");
         selectedCardIssuer = new CardIssuerModel("272", "Banco Comafi", "http://img.mlstatic.com/org-img/MP3/API/logos/272.gif");
         selectedCuota = new CuotaModel(1, "1 cuota de $ 4.000,00 ($ 4.000,00)");
 
@@ -193,22 +193,6 @@ public class PaymentStepsViewModelTest {
         consumerPaymentMethodsSuccess.getValue().accept(paymentMethods);
         assertThat(viewModel.showNoPaymentMethodsMessage.getValue()).isInstanceOf(Event.class);
         verify(booleanEventObserver).onChanged(booleanEventCaptor.capture());
-    }
-
-    @Test
-    public void given_dataIsAlreadySet_when_gotToSelectPaymentMethod_then_showTheDataAlreadySet() {
-        final List<PaymentMethodModel> paymentMethodStubs = getPaymentMethodStubs();
-        viewModel.paymentMethods.observeForever(paymentMethodsObserver);
-        viewModel.showLoading.observeForever(showLoadingObserver);
-        viewModel.paymentMethods.setValue(paymentMethodStubs);
-
-        viewModel.fetchPaymentMethods(montoIngresado);
-
-        verifyZeroInteractions(repository);
-        assertThat(viewModel.showLoading.getValue()).isFalse();
-        verify(showLoadingObserver).onChanged(eq(false));
-        assertThat(viewModel.paymentMethods.getValue()).isEqualTo(paymentMethodStubs);
-        verify(paymentMethodsObserver, atLeastOnce()).onChanged(eq(paymentMethodStubs));
     }
 
     @Test
@@ -352,22 +336,6 @@ public class PaymentStepsViewModelTest {
     }
 
     @Test
-    public void given_dataIsAlreadySet_when_fetchCardIssuers_then_showTheDataAlreadySet() {
-        final List<CardIssuerModel> cardIssuerStubs = getCardIssuerStubs();
-        viewModel.cardIssuers.observeForever(cardIssuersObserver);
-        viewModel.showLoading.observeForever(showLoadingObserver);
-        viewModel.cardIssuers.setValue(cardIssuerStubs);
-
-        viewModel.fetchCardIssuers(selectedPaymentMethod);
-
-        verifyZeroInteractions(repository);
-        assertThat(viewModel.showLoading.getValue()).isFalse();
-        verify(showLoadingObserver).onChanged(eq(false));
-        assertThat(viewModel.cardIssuers.getValue()).isEqualTo(cardIssuerStubs);
-        verify(cardIssuersObserver, atLeastOnce()).onChanged(eq(cardIssuerStubs));
-    }
-
-    @Test
     public void given_cardIssuerIsSet_when_fetchCuotas_then_showLoading() {
         viewModel.fetchPaymentMethods(montoIngresado);
         viewModel.fetchCardIssuers(selectedPaymentMethod);
@@ -401,22 +369,6 @@ public class PaymentStepsViewModelTest {
         assertThat(paramsCaptor.getValue().paymentMethodId).isEqualTo(selectedPaymentMethod.getId());
         assertThat(paramsCaptor.getValue().issuerId).isEqualTo(selectedCardIssuer.getId());
 
-    }
-
-    @Test
-    public void given_dataIsAlreadySet_when_fetchCuotas_then_showTheDataAlreadySet() {
-        final List<CuotaModel> cuotaStubs = getCuotaStubs();
-        viewModel.cuotas.observeForever(cuotasObserver);
-        viewModel.showLoading.observeForever(showLoadingObserver);
-        viewModel.cuotas.setValue(cuotaStubs);
-
-        viewModel.fetchCuotas(selectedCardIssuer);
-
-        verifyZeroInteractions(repository);
-        assertThat(viewModel.showLoading.getValue()).isFalse();
-        verify(showLoadingObserver).onChanged(eq(false));
-        assertThat(viewModel.cuotas.getValue()).isEqualTo(cuotaStubs);
-        verify(cuotasObserver, atLeastOnce()).onChanged(eq(cuotaStubs));
     }
 
     @Test

@@ -126,6 +126,22 @@ public class RemotePaymentRepositoryTest {
     }
 
     @Test
+    public void given_apiReturnPaymentMethods_when_getPaymentMethods_then_returnCreditCardPaymentMethods() throws Exception {
+        final List<PaymentMethodModel> paymentMethods = getPaymentMethodStubs();
+        paymentMethods.get(1).setPaymentTypeId("debit_card");
+        doReturn(Single.just(paymentMethods)).when(api).getPaymentMethods(eq(Constants.PUBLIC_KEY));
+
+        repository.getPaymentMethods(paymentMethodsConsumerSuccess, consumerError);
+        testScheduler.triggerActions();
+
+        verify(api).getPaymentMethods(eq(Constants.PUBLIC_KEY));
+        verify(paymentMethodsConsumerSuccess).accept(paymentMethodsCaptor.capture());
+        assertThat(paymentMethodsCaptor.getValue()).hasSize(1);
+        assertThat(paymentMethodsCaptor.getValue().get(0).getPaymentTypeId()).isEqualTo("credit_card");
+        verifyZeroInteractions(consumerError);
+    }
+
+    @Test
     public void given_apiReturnHttpException_when_getPaymentMethods_then_returnTheException() throws Exception {
         doReturn(Single.error(mockError)).when(api).getPaymentMethods(eq(Constants.PUBLIC_KEY));
 

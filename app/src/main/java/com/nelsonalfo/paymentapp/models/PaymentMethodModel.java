@@ -12,11 +12,14 @@ public class PaymentMethodModel  {
     private String status;
     @SerializedName("thumbnail")
     private String thumbnail;
+    @SerializedName("payment_type_id")
+    private String paymentTypeId;
 
 
-    public PaymentMethodModel(String id, String name, String status, String thumbnail) {
+    public PaymentMethodModel(String id, String name, String paymentTypeId, String status, String thumbnail) {
         this.id = id;
         this.name = name;
+        this.paymentTypeId = paymentTypeId;
         this.status = status;
         this.thumbnail = thumbnail;
     }
@@ -54,5 +57,13 @@ public class PaymentMethodModel  {
 
     public void setThumbnail(String thumbnail) {
         this.thumbnail = thumbnail;
+    }
+
+    public String getPaymentTypeId() {
+        return paymentTypeId;
+    }
+
+    public void setPaymentTypeId(String paymentTypeId) {
+        this.paymentTypeId = paymentTypeId;
     }
 }

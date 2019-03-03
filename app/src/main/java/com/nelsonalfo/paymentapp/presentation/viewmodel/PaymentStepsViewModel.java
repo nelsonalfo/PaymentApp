@@ -37,12 +37,8 @@ public class PaymentStepsViewModel extends ViewModel {
     public void fetchPaymentMethods(long montoIngresado) {
         amount = montoIngresado;
 
-        if (paymentMethods.getValue() == null) {
-            showLoading.setValue(true);
-            repository.getPaymentMethods(this::showPaymentMethods, error -> showErrorMessage());
-        } else {
-            showPaymentMethods(paymentMethods.getValue());
-        }
+        showLoading.setValue(true);
+        repository.getPaymentMethods(this::showPaymentMethods, error -> showErrorMessage());
     }
 
     private void showPaymentMethods(List<PaymentMethodModel> paymentMethods) {
@@ -64,12 +60,8 @@ public class PaymentStepsViewModel extends ViewModel {
         if (selectedPaymentMethod != null && containsId(selectedPaymentMethod.getId())) {
             this.paymentMethod = selectedPaymentMethod;
 
-            if (cardIssuers.getValue() == null) {
-                showLoading.setValue(true);
-                repository.getCardIssuers(selectedPaymentMethod.getId(), this::showCardIssuers, error -> showErrorMessage());
-            } else {
-                showCardIssuers(cardIssuers.getValue());
-            }
+            showLoading.setValue(true);
+            repository.getCardIssuers(selectedPaymentMethod.getId(), this::showCardIssuers, error -> showErrorMessage());
         }
     }
 
@@ -91,13 +83,9 @@ public class PaymentStepsViewModel extends ViewModel {
         if (selectedCardIssuer != null && containsId(selectedCardIssuer.getId())) {
             cardIssuer = selectedCardIssuer;
 
-            if (cuotas.getValue() == null) {
-                showLoading.setValue(true);
-                final Params params = new Params(amount, paymentMethod.getId(), cardIssuer.getId());
-                repository.getCuotas(params, this::showCuotas, error -> showErrorMessage());
-            } else {
-                showCuotas(cuotas.getValue());
-            }
+            showLoading.setValue(true);
+            final Params params = new Params(amount, paymentMethod.getId(), cardIssuer.getId());
+            repository.getCuotas(params, this::showCuotas, error -> showErrorMessage());
         }
     }
 

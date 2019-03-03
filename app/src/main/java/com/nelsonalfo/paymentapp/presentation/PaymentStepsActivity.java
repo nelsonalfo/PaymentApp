@@ -66,9 +66,11 @@ public class PaymentStepsActivity extends DaggerAppCompatActivity {
 
         viewModel.showLoading.observe(this, this::showLoading);
         viewModel.showErrorMessage.observe(this, this::showErrorMessage);
+        viewModel.showNoCuotasMessage.observe(this, this::showNoCuotasMessage);
         viewModel.showNoCardIssuersMessage.observe(this, this::showNoCardIssuersMessage);
         viewModel.showNoPaymentMethodsMessage.observe(this, this::showNoPaymentMethodsMessage);
         viewModel.selectedDataMessage.observe(this,this::showSelectedData);
+
     }
 
     private void goToPaymentMethods() {
@@ -95,6 +97,12 @@ public class PaymentStepsActivity extends DaggerAppCompatActivity {
     private void showErrorMessage(Event<Boolean> event) {
         if (event.getContentIfNotHandled() != null) {
             Toast.makeText(this, "No se pudieron obtener los datos", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void showNoCuotasMessage(Event<Boolean> event) {
+        if (event.getContentIfNotHandled() != null) {
+            Toast.makeText(this, "No existen cuotas para la seleccion realizada", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -132,6 +140,6 @@ public class PaymentStepsActivity extends DaggerAppCompatActivity {
         return "Monto seleccionado: \n$" + selectedData.amount +
                 "\n\nMetodo de pago seleccionado: \n" + paymentMethod.getName() + " (id: " + paymentMethod.getId() + ")" +
                 "\n\nBanco seleccionado: \n" + cardIssuer.getName() + " (id: " + cardIssuer.getId() + ")" +
-                "\n\nCuota seleccionada: " + cuota.getRecommendedMessage() + " (installments: " + cuota.getInstallments() + ")";
+                "\n\nCuota seleccionada: \n" + cuota.getRecommendedMessage() + " (installments: " + cuota.getInstallments() + ")";
     }
 }

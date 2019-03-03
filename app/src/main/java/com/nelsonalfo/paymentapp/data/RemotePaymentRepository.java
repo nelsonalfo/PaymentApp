@@ -38,7 +38,7 @@ public class RemotePaymentRepository implements PaymentRepository {
                 .observeOn(uiThread.getScheduler())
                 .toObservable()
                 .flatMapIterable(this::getPaymentMethods)
-                .filter(this::isActive)
+                .filter(this::isActiveCreditCard)
                 .toList()
                 .subscribe(success, error);
     }
@@ -47,8 +47,9 @@ public class RemotePaymentRepository implements PaymentRepository {
         return paymentMethods;
     }
 
-    private boolean isActive(PaymentMethodModel paymentMethodModel) {
-        return paymentMethodModel.getStatus().equals("active");
+    private boolean isActiveCreditCard(PaymentMethodModel paymentMethodModel) {
+        return paymentMethodModel.getStatus().equals("active")
+                && paymentMethodModel.getPaymentTypeId().equals("credit_card");
     }
 
     @Override
