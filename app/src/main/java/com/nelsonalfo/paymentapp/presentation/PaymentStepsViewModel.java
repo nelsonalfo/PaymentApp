@@ -27,6 +27,7 @@ public class PaymentStepsViewModel extends ViewModel {
     public final MutableLiveData<Event<Boolean>> showNoPaymentMethodsMessage = new MutableLiveData<>();
     public final MutableLiveData<Event<Boolean>> showNoCardIssuersMessage = new MutableLiveData<>();
     public final MutableLiveData<Event<Boolean>> showNoCuotasMessage = new MutableLiveData<>();
+    public final MutableLiveData<Event<SelectedData>> selectedDataMessage = new MutableLiveData<>();
 
 
     void setRepository(PaymentRepository repository) {
@@ -103,6 +104,12 @@ public class PaymentStepsViewModel extends ViewModel {
         } else {
             showNoCuotasMessage.setValue(new Event<>(true));
         }
+    }
+
+    public void showSelectedData(CuotaModel selectedCuota) {
+        final SelectedData selectedData = new SelectedData(amount, paymentMethod, cardIssuer, selectedCuota);
+
+        selectedDataMessage.setValue(new Event<>(selectedData));
     }
 
     public long getAmount() {

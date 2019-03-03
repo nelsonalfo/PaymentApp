@@ -41,7 +41,9 @@ public class PaymentStepsViewModelTest {
     @Mock
     private Observer<Boolean> showLoadingObserver;
     @Mock
-    private Observer<Event<Boolean>> eventObserver;
+    private Observer<Event<Boolean>> booleanEventObserver;
+    @Mock
+    private Observer<Event<SelectedData>> selectedDataEventObserver;
     @Mock
     private Observer<List<PaymentMethodModel>> paymentMethodsObserver;
     @Mock
@@ -62,7 +64,9 @@ public class PaymentStepsViewModelTest {
     @Captor
     private ArgumentCaptor<Consumer<Throwable>> consumerError;
     @Captor
-    private ArgumentCaptor<Event<Boolean>> eventCaptor;
+    private ArgumentCaptor<Event<Boolean>> booleanEventCaptor;
+    @Captor
+    private ArgumentCaptor<Event<SelectedData>> selectedDataEventCaptor;
     @Captor
     private ArgumentCaptor<Params> paramsCaptor;
 
@@ -70,6 +74,7 @@ public class PaymentStepsViewModelTest {
 
     private CardIssuerModel selectedCardIssuer;
     private PaymentMethodModel selectedPaymentMethod;
+    private CuotaModel selectedCuota;
     private long montoIngresado;
 
     private PaymentStepsViewModel viewModel;
@@ -80,6 +85,7 @@ public class PaymentStepsViewModelTest {
         montoIngresado = 4000;
         selectedPaymentMethod = new PaymentMethodModel("visa", "Visa", "active", "http://img.mlstatic.com/org-img/MP3/API/logos/naranja.gif");
         selectedCardIssuer = new CardIssuerModel("272", "Banco Comafi", "http://img.mlstatic.com/org-img/MP3/API/logos/272.gif");
+        selectedCuota = new CuotaModel(1, "1 cuota de $ 4.000,00 ($ 4.000,00)");
 
         mockError = new HttpException(Response.error(404, mockErrorBody));
 
@@ -139,14 +145,14 @@ public class PaymentStepsViewModelTest {
 
     @Test
     public void given_repositoryReturnError_when_fetchPaymentMethods_then_showErrorAndRetryMessage() throws Exception {
-        viewModel.showErrorMessage.observeForever(eventObserver);
+        viewModel.showErrorMessage.observeForever(booleanEventObserver);
 
         viewModel.fetchPaymentMethods(montoIngresado);
 
         verify(repository).getPaymentMethods(consumerPaymentMethodsSuccess.capture(), consumerError.capture());
         consumerError.getValue().accept(mockError);
         assertThat(viewModel.showErrorMessage.getValue()).isInstanceOf(Event.class);
-        verify(eventObserver).onChanged(eventCaptor.capture());
+        verify(booleanEventObserver).onChanged(booleanEventCaptor.capture());
     }
 
     @Test
@@ -164,27 +170,27 @@ public class PaymentStepsViewModelTest {
     @Test
     public void given_repositoryReturnZeroPaymentMethods_when_fetchPaymentMethods_then_showNoPaymentMethodsMessage() throws Exception {
         final List<PaymentMethodModel> paymentMethods = new ArrayList<>();
-        viewModel.showNoPaymentMethodsMessage.observeForever(eventObserver);
+        viewModel.showNoPaymentMethodsMessage.observeForever(booleanEventObserver);
 
         viewModel.fetchPaymentMethods(montoIngresado);
 
         verify(repository).getPaymentMethods(consumerPaymentMethodsSuccess.capture(), consumerError.capture());
         consumerPaymentMethodsSuccess.getValue().accept(paymentMethods);
         assertThat(viewModel.showNoPaymentMethodsMessage.getValue()).isInstanceOf(Event.class);
-        verify(eventObserver).onChanged(eventCaptor.capture());
+        verify(booleanEventObserver).onChanged(booleanEventCaptor.capture());
     }
 
     @Test
     public void given_repositoryReturnNull_when_fetchPaymentMethods_then_showNoPaymentMethodsMessage() throws Exception {
         final ArrayList<PaymentMethodModel> paymentMethods = null;
-        viewModel.showNoPaymentMethodsMessage.observeForever(eventObserver);
+        viewModel.showNoPaymentMethodsMessage.observeForever(booleanEventObserver);
 
         viewModel.fetchPaymentMethods(montoIngresado);
 
         verify(repository).getPaymentMethods(consumerPaymentMethodsSuccess.capture(), consumerError.capture());
         consumerPaymentMethodsSuccess.getValue().accept(paymentMethods);
         assertThat(viewModel.showNoPaymentMethodsMessage.getValue()).isInstanceOf(Event.class);
-        verify(eventObserver).onChanged(eventCaptor.capture());
+        verify(booleanEventObserver).onChanged(booleanEventCaptor.capture());
     }
 
     @Test
@@ -265,42 +271,42 @@ public class PaymentStepsViewModelTest {
 
     @Test
     public void given_repositoryReturnError_when_fetchCardIssuers_then_showErrorAndRetryMessage() throws Exception {
-        viewModel.showErrorMessage.observeForever(eventObserver);
+        viewModel.showErrorMessage.observeForever(booleanEventObserver);
 
         viewModel.fetchCardIssuers(selectedPaymentMethod);
 
         verify(repository).getCardIssuers(eq(selectedPaymentMethod.getId()), consumerCardIssuersSuccess.capture(), consumerError.capture());
         consumerError.getValue().accept(mockError);
         assertThat(viewModel.showErrorMessage.getValue()).isInstanceOf(Event.class);
-        verify(eventObserver).onChanged(eventCaptor.capture());
+        verify(booleanEventObserver).onChanged(booleanEventCaptor.capture());
     }
 
 
     @Test
     public void given_repositoryReturnZeroCardIssuers_when_fetchCardIssuers_then_showNoCardIssuersMessage() throws Exception {
         final List<CardIssuerModel> cardIssuers = new ArrayList<>();
-        viewModel.showNoCardIssuersMessage.observeForever(eventObserver);
+        viewModel.showNoCardIssuersMessage.observeForever(booleanEventObserver);
 
         viewModel.fetchCardIssuers(selectedPaymentMethod);
 
         verify(repository).getCardIssuers(eq(selectedPaymentMethod.getId()), consumerCardIssuersSuccess.capture(), consumerError.capture());
         consumerCardIssuersSuccess.getValue().accept(cardIssuers);
         assertThat(viewModel.showNoCardIssuersMessage.getValue()).isInstanceOf(Event.class);
-        verify(eventObserver).onChanged(eventCaptor.capture());
+        verify(booleanEventObserver).onChanged(booleanEventCaptor.capture());
     }
 
 
     @Test
     public void given_repositoryReturnNull_when_fetchCardIssuers_then_showNoCardIssuersMessage() throws Exception {
         final List<CardIssuerModel> cardIssuers = null;
-        viewModel.showNoCardIssuersMessage.observeForever(eventObserver);
+        viewModel.showNoCardIssuersMessage.observeForever(booleanEventObserver);
 
         viewModel.fetchCardIssuers(selectedPaymentMethod);
 
         verify(repository).getCardIssuers(eq(selectedPaymentMethod.getId()), consumerCardIssuersSuccess.capture(), consumerError.capture());
         consumerCardIssuersSuccess.getValue().accept(cardIssuers);
         assertThat(viewModel.showNoCardIssuersMessage.getValue()).isInstanceOf(Event.class);
-        verify(eventObserver).onChanged(eventCaptor.capture());
+        verify(booleanEventObserver).onChanged(booleanEventCaptor.capture());
     }
 
 
@@ -313,7 +319,7 @@ public class PaymentStepsViewModelTest {
         verifyZeroInteractions(showLoadingObserver);
         verifyZeroInteractions(repository);
         verifyZeroInteractions(cardIssuersObserver);
-        verifyZeroInteractions(eventObserver);
+        verifyZeroInteractions(booleanEventObserver);
     }
 
     @Test
@@ -325,7 +331,7 @@ public class PaymentStepsViewModelTest {
         verifyZeroInteractions(showLoadingObserver);
         verifyZeroInteractions(repository);
         verifyZeroInteractions(cardIssuersObserver);
-        verifyZeroInteractions(eventObserver);
+        verifyZeroInteractions(booleanEventObserver);
     }
 
     @Test
@@ -337,7 +343,7 @@ public class PaymentStepsViewModelTest {
         verifyZeroInteractions(showLoadingObserver);
         verifyZeroInteractions(repository);
         verifyZeroInteractions(cardIssuersObserver);
-        verifyZeroInteractions(eventObserver);
+        verifyZeroInteractions(booleanEventObserver);
     }
 
     @Test
@@ -409,7 +415,7 @@ public class PaymentStepsViewModelTest {
         verifyZeroInteractions(showLoadingObserver);
         verifyZeroInteractions(repository);
         verifyZeroInteractions(cuotasObserver);
-        verifyZeroInteractions(eventObserver);
+        verifyZeroInteractions(booleanEventObserver);
     }
 
     @Test
@@ -421,7 +427,7 @@ public class PaymentStepsViewModelTest {
         verifyZeroInteractions(showLoadingObserver);
         verifyZeroInteractions(repository);
         verifyZeroInteractions(cuotasObserver);
-        verifyZeroInteractions(eventObserver);
+        verifyZeroInteractions(booleanEventObserver);
     }
 
     @Test
@@ -433,7 +439,7 @@ public class PaymentStepsViewModelTest {
         verifyZeroInteractions(showLoadingObserver);
         verifyZeroInteractions(repository);
         verifyZeroInteractions(cuotasObserver);
-        verifyZeroInteractions(eventObserver);
+        verifyZeroInteractions(booleanEventObserver);
     }
 
     @Test
@@ -471,14 +477,14 @@ public class PaymentStepsViewModelTest {
         final List<CuotaModel> cuotaStubs = new ArrayList<>();
         viewModel.fetchPaymentMethods(montoIngresado);
         viewModel.fetchCardIssuers(selectedPaymentMethod);
-        viewModel.showNoCuotasMessage.observeForever(eventObserver);
+        viewModel.showNoCuotasMessage.observeForever(booleanEventObserver);
 
         viewModel.fetchCuotas(selectedCardIssuer);
 
         verify(repository).getCuotas(paramsCaptor.capture(), consumerCuotasSuccess.capture(), consumerError.capture());
         consumerCuotasSuccess.getValue().accept(cuotaStubs);
         assertThat(viewModel.showNoCuotasMessage.getValue()).isInstanceOf(Event.class);
-        verify(eventObserver).onChanged(eventCaptor.capture());
+        verify(booleanEventObserver).onChanged(booleanEventCaptor.capture());
         verifyZeroInteractions(cuotasObserver);
     }
 
@@ -487,14 +493,14 @@ public class PaymentStepsViewModelTest {
         final List<CuotaModel> cuotaStubs = null;
         viewModel.fetchPaymentMethods(montoIngresado);
         viewModel.fetchCardIssuers(selectedPaymentMethod);
-        viewModel.showNoCuotasMessage.observeForever(eventObserver);
+        viewModel.showNoCuotasMessage.observeForever(booleanEventObserver);
 
         viewModel.fetchCuotas(selectedCardIssuer);
 
         verify(repository).getCuotas(paramsCaptor.capture(), consumerCuotasSuccess.capture(), consumerError.capture());
         consumerCuotasSuccess.getValue().accept(cuotaStubs);
         assertThat(viewModel.showNoCuotasMessage.getValue()).isInstanceOf(Event.class);
-        verify(eventObserver).onChanged(eventCaptor.capture());
+        verify(booleanEventObserver).onChanged(booleanEventCaptor.capture());
         verifyZeroInteractions(cuotasObserver);
     }
 
@@ -517,14 +523,32 @@ public class PaymentStepsViewModelTest {
     public void given_repositoryReturnError_when_fetchCuotas_then_showErrorAndRetryMessage() throws Exception {
         viewModel.fetchPaymentMethods(montoIngresado);
         viewModel.fetchCardIssuers(selectedPaymentMethod);
-        viewModel.showErrorMessage.observeForever(eventObserver);
+        viewModel.showErrorMessage.observeForever(booleanEventObserver);
 
         viewModel.fetchCuotas(selectedCardIssuer);
 
         verify(repository).getCuotas(paramsCaptor.capture(), consumerCuotasSuccess.capture(), consumerError.capture());
         consumerError.getValue().accept(mockError);
         assertThat(viewModel.showErrorMessage.getValue()).isInstanceOf(Event.class);
-        verify(eventObserver).onChanged(eventCaptor.capture());
+        verify(booleanEventObserver).onChanged(booleanEventCaptor.capture());
+    }
+
+    @Test
+    public void given_selectedCuotaIsSet_when_showSelectedData_then_showAllSelectedDataFormatted() {
+        viewModel.fetchPaymentMethods(montoIngresado);
+        viewModel.fetchCardIssuers(selectedPaymentMethod);
+        viewModel.fetchCuotas(selectedCardIssuer);
+        viewModel.selectedDataMessage.observeForever(selectedDataEventObserver);
+
+        viewModel.showSelectedData(selectedCuota);
+
+        assertThat(viewModel.selectedDataMessage.getValue()).isInstanceOf(Event.class);
+        verify(selectedDataEventObserver).onChanged(selectedDataEventCaptor.capture());
+        final Event<SelectedData> event = selectedDataEventCaptor.getValue();
+        assertThat(event.peekContent().amount).isEqualTo(montoIngresado);
+        assertThat(event.peekContent().paymentMethod).isEqualTo(selectedPaymentMethod);
+        assertThat(event.peekContent().cardIssuer).isEqualTo(selectedCardIssuer);
+        assertThat(event.peekContent().cuota).isEqualTo(selectedCuota);
     }
 
     private List<PaymentMethodModel> getPaymentMethodStubs() {
