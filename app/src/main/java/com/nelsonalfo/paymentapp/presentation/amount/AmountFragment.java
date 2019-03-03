@@ -1,7 +1,6 @@
-package com.nelsonalfo.paymentapp.presentation.fragments;
+package com.nelsonalfo.paymentapp.presentation.amount;
 
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,7 +12,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 
 import com.nelsonalfo.paymentapp.R;
-import com.nelsonalfo.paymentapp.presentation.PaymentStepsViewModel;
+import com.nelsonalfo.paymentapp.presentation.viewmodel.PaymentStepsViewModel;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -25,7 +24,6 @@ public class AmountFragment extends Fragment {
     @BindView(R.id.monto_edit_text)
     EditText montoEditText;
 
-    private Listener listener;
     private PaymentStepsViewModel viewModel;
 
 
@@ -53,37 +51,16 @@ public class AmountFragment extends Fragment {
 
     @OnClick(R.id.siguiente_button)
     public void onSiguienteButtonPressed() {
-        if (listener != null) {
-            if (!TextUtils.isEmpty(montoEditText.getText())) {
-                notifyMontoIsSet();
-            }else{
-                montoEditText.setError("Debe ingresar un valor");
-            }
+        if (!TextUtils.isEmpty(montoEditText.getText())) {
+            fetchPaymentMethods();
+        } else {
+            montoEditText.setError(getString(R.string.amount_not_set_error));
         }
+
     }
 
-    private void notifyMontoIsSet() {
+    private void fetchPaymentMethods() {
         final String textValue = montoEditText.getText().toString().trim();
         viewModel.fetchPaymentMethods(Long.parseLong(textValue));
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof Listener) {
-            listener = (Listener) context;
-        } else {
-            throw new RuntimeException(context.toString() + " must implement Listener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        listener = null;
-    }
-
-    public interface Listener {
-        void onMontoSet(long monto);
     }
 }

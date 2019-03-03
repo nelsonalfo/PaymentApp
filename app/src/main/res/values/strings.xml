@@ -1,11 +1,14 @@
 <resources>
     <string name="app_name">PaymentApp</string>
-    <string name="obteniendo_datos">Obteniedo datos</string>
+    <string name="loading_message">Obteniendo datos…</string>
+
+    <string name="hint_monto_edit_text">Ej: 4000</string>
+    <string name="siguiente">Siguiente</string>
+    <string name="amount_not_set_error">Debe ingresar un valor</string>
+
 
     <string name="set_amount_title">Ingresa un monto</string>
-    <string name="siguiente">Siguiente</string>
-    <string name="hint_monto_edit_text">Ej: 4000</string>
-
     <string name="select_payment_title">Selecciona un metodo de pago</string>
     <string name="card_issuers_title">Selecciona un banco</string>
+    <string name="cuotas_title">Selecciona una cuota</string>
 </resources>

@@ -1,4 +1,4 @@
-package com.nelsonalfo.paymentapp.presentation;
+package com.nelsonalfo.paymentapp.presentation.viewmodel;
 
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
@@ -30,7 +30,7 @@ public class PaymentStepsViewModel extends ViewModel {
     public final MutableLiveData<Event<SelectedData>> selectedDataMessage = new MutableLiveData<>();
 
 
-    void setRepository(PaymentRepository repository) {
+    public void setRepository(PaymentRepository repository) {
         this.repository = repository;
     }
 
@@ -40,6 +40,8 @@ public class PaymentStepsViewModel extends ViewModel {
         if (paymentMethods.getValue() == null) {
             showLoading.setValue(true);
             repository.getPaymentMethods(this::showPaymentMethods, error -> showErrorMessage());
+        } else {
+            showPaymentMethods(paymentMethods.getValue());
         }
     }
 
@@ -65,6 +67,8 @@ public class PaymentStepsViewModel extends ViewModel {
             if (cardIssuers.getValue() == null) {
                 showLoading.setValue(true);
                 repository.getCardIssuers(selectedPaymentMethod.getId(), this::showCardIssuers, error -> showErrorMessage());
+            } else {
+                showCardIssuers(cardIssuers.getValue());
             }
         }
     }
@@ -89,9 +93,10 @@ public class PaymentStepsViewModel extends ViewModel {
 
             if (cuotas.getValue() == null) {
                 showLoading.setValue(true);
-
                 final Params params = new Params(amount, paymentMethod.getId(), cardIssuer.getId());
                 repository.getCuotas(params, this::showCuotas, error -> showErrorMessage());
+            } else {
+                showCuotas(cuotas.getValue());
             }
         }
     }

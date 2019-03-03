@@ -1,4 +1,4 @@
-package com.nelsonalfo.paymentapp.presentation;
+package com.nelsonalfo.paymentapp.presentation.viewmodel;
 
 import android.arch.core.executor.testing.InstantTaskExecutorRule;
 import android.arch.lifecycle.Observer;
@@ -197,13 +197,16 @@ public class PaymentStepsViewModelTest {
     public void given_dataIsAlreadySet_when_gotToSelectPaymentMethod_then_showTheDataAlreadySet() {
         final List<PaymentMethodModel> paymentMethodStubs = getPaymentMethodStubs();
         viewModel.paymentMethods.observeForever(paymentMethodsObserver);
+        viewModel.showLoading.observeForever(showLoadingObserver);
         viewModel.paymentMethods.setValue(paymentMethodStubs);
 
         viewModel.fetchPaymentMethods(montoIngresado);
 
-        verifyZeroInteractions(showLoadingObserver);
         verifyZeroInteractions(repository);
-        verify(paymentMethodsObserver).onChanged(eq(paymentMethodStubs));
+        assertThat(viewModel.showLoading.getValue()).isFalse();
+        verify(showLoadingObserver).onChanged(eq(false));
+        assertThat(viewModel.paymentMethods.getValue()).isEqualTo(paymentMethodStubs);
+        verify(paymentMethodsObserver, atLeastOnce()).onChanged(eq(paymentMethodStubs));
     }
 
     @Test
@@ -350,13 +353,16 @@ public class PaymentStepsViewModelTest {
     public void given_dataIsAlreadySet_when_fetchCardIssuers_then_showTheDataAlreadySet() {
         final List<CardIssuerModel> cardIssuerStubs = getCardIssuerStubs();
         viewModel.cardIssuers.observeForever(cardIssuersObserver);
+        viewModel.showLoading.observeForever(showLoadingObserver);
         viewModel.cardIssuers.setValue(cardIssuerStubs);
 
         viewModel.fetchCardIssuers(selectedPaymentMethod);
 
-        verifyZeroInteractions(showLoadingObserver);
         verifyZeroInteractions(repository);
-        verify(cardIssuersObserver).onChanged(eq(cardIssuerStubs));
+        assertThat(viewModel.showLoading.getValue()).isFalse();
+        verify(showLoadingObserver).onChanged(eq(false));
+        assertThat(viewModel.cardIssuers.getValue()).isEqualTo(cardIssuerStubs);
+        verify(cardIssuersObserver, atLeastOnce()).onChanged(eq(cardIssuerStubs));
     }
 
     @Test
@@ -399,13 +405,16 @@ public class PaymentStepsViewModelTest {
     public void given_dataIsAlreadySet_when_fetchCuotas_then_showTheDataAlreadySet() {
         final List<CuotaModel> cuotaStubs = getCuotaStubs();
         viewModel.cuotas.observeForever(cuotasObserver);
+        viewModel.showLoading.observeForever(showLoadingObserver);
         viewModel.cuotas.setValue(cuotaStubs);
 
         viewModel.fetchCuotas(selectedCardIssuer);
 
-        verifyZeroInteractions(showLoadingObserver);
         verifyZeroInteractions(repository);
-        verify(cuotasObserver).onChanged(eq(cuotaStubs));
+        assertThat(viewModel.showLoading.getValue()).isFalse();
+        verify(showLoadingObserver).onChanged(eq(false));
+        assertThat(viewModel.cuotas.getValue()).isEqualTo(cuotaStubs);
+        verify(cuotasObserver, atLeastOnce()).onChanged(eq(cuotaStubs));
     }
 
     @Test

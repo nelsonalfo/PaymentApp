@@ -3,15 +3,17 @@ package com.nelsonalfo.paymentapp.presentation;
 import android.app.AlertDialog;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.nelsonalfo.paymentapp.R;
 import com.nelsonalfo.paymentapp.commons.views.NonSwipeableViewPager;
 import com.nelsonalfo.paymentapp.data.PaymentRepository;
 import com.nelsonalfo.paymentapp.models.CardIssuerModel;
-import com.nelsonalfo.paymentapp.presentation.adapters.PaymentStepsAdapter;
-import com.nelsonalfo.paymentapp.presentation.fragments.AmountFragment;
-
-import java.util.List;
+import com.nelsonalfo.paymentapp.models.CuotaModel;
+import com.nelsonalfo.paymentapp.models.PaymentMethodModel;
+import com.nelsonalfo.paymentapp.presentation.viewmodel.Event;
+import com.nelsonalfo.paymentapp.presentation.viewmodel.PaymentStepsViewModel;
+import com.nelsonalfo.paymentapp.presentation.viewmodel.SelectedData;
 
 import javax.inject.Inject;
 
@@ -19,8 +21,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import dagger.android.support.DaggerAppCompatActivity;
 
-public class PaymentStepsActivity extends DaggerAppCompatActivity implements
-        AmountFragment.Listener {
+import static com.nelsonalfo.paymentapp.presentation.PaymentStepsAdapter.AMOUNT;
+import static com.nelsonalfo.paymentapp.presentation.PaymentStepsAdapter.CARD_ISSUERS;
+import static com.nelsonalfo.paymentapp.presentation.PaymentStepsAdapter.CUOTAS;
+import static com.nelsonalfo.paymentapp.presentation.PaymentStepsAdapter.PAYMENT_METHODS;
+
+public class PaymentStepsActivity extends DaggerAppCompatActivity {
 
     @Inject
     PaymentRepository repository;
@@ -28,7 +34,6 @@ public class PaymentStepsActivity extends DaggerAppCompatActivity implements
     @BindView(R.id.payment_steps_view_pager)
     NonSwipeableViewPager viewPager;
 
-    private PaymentStepsAdapter adapter;
     private AlertDialog loadingDialog;
 
     private PaymentStepsViewModel viewModel;
@@ -41,12 +46,13 @@ public class PaymentStepsActivity extends DaggerAppCompatActivity implements
         ButterKnife.bind(this);
 
         loadingDialog = new AlertDialog.Builder(this)
-                .setMessage(R.string.obteniendo_datos)
+                .setMessage(R.string.loading_message)
+                .setCancelable(false)
                 .create();
 
         bindWithViewModel();
 
-        adapter = new PaymentStepsAdapter(getSupportFragmentManager());
+        final PaymentStepsAdapter adapter = new PaymentStepsAdapter(getSupportFragmentManager());
         viewPager.setAdapter(adapter);
     }
 
@@ -54,20 +60,27 @@ public class PaymentStepsActivity extends DaggerAppCompatActivity implements
         viewModel = ViewModelProviders.of(this).get(PaymentStepsViewModel.class);
         viewModel.setRepository(repository);
 
-        viewModel.showLoading.observe(this, this::showLoading);
-        viewModel.showErrorMessage.observe(this, this::showErrorMessage);
         viewModel.cardIssuers.observe(this, cardIssuers -> goToCardIssuers());
         viewModel.paymentMethods.observe(this, paymentMethods -> goToPaymentMethods());
+        viewModel.cuotas.observe(this, cuotas -> goToCuotas());
+
+        viewModel.showLoading.observe(this, this::showLoading);
+        viewModel.showErrorMessage.observe(this, this::showErrorMessage);
         viewModel.showNoCardIssuersMessage.observe(this, this::showNoCardIssuersMessage);
         viewModel.showNoPaymentMethodsMessage.observe(this, this::showNoPaymentMethodsMessage);
+        viewModel.selectedDataMessage.observe(this,this::showSelectedData);
     }
 
     private void goToPaymentMethods() {
-        viewPager.setCurrentItem(PaymentStepsAdapter.PAYMENT_METHODS);
+        viewPager.setCurrentItem(PAYMENT_METHODS);
     }
 
     private void goToCardIssuers() {
-        viewPager.setCurrentItem(PaymentStepsAdapter.CARD_ISSUERS);
+        viewPager.setCurrentItem(CARD_ISSUERS);
+    }
+
+    private void goToCuotas() {
+        viewPager.setCurrentItem(CUOTAS);
     }
 
     public void showLoading(boolean show) {
@@ -81,40 +94,44 @@ public class PaymentStepsActivity extends DaggerAppCompatActivity implements
 
     private void showErrorMessage(Event<Boolean> event) {
         if (event.getContentIfNotHandled() != null) {
-            //TODO show error
+            Toast.makeText(this, "No se pudieron obtener los datos", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void showNoCardIssuersMessage(Event<Boolean> event) {
         if (event.getContentIfNotHandled() != null) {
-            //TODO show message
+            Toast.makeText(this, "No existen Bancos para este Medio de Pago", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void showNoPaymentMethodsMessage(Event<Boolean> event) {
         if (event.getContentIfNotHandled() != null) {
-            //TODO show message
+            Toast.makeText(this, "No existen Metodos de Pago", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void showCardIssuers(List<CardIssuerModel> cardIssuers) {
-        //TODO crear fragmento apra mostrar card issuers
+    private void showSelectedData(Event<SelectedData> event) {
+        final SelectedData selectedData = event.getContentIfNotHandled();
+        if (selectedData != null) {
+            viewPager.setCurrentItem(AMOUNT);
+
+
+
+            new AlertDialog.Builder(this)
+                    .setMessage(getMessage(selectedData))
+                    .create()
+                    .show();
+        }
     }
 
-    @Override
-    public void onMontoSet(long monto) {
-        viewModel.fetchPaymentMethods(monto);
-    }
+    private String getMessage(SelectedData selectedData) {
+        final PaymentMethodModel paymentMethod = selectedData.paymentMethod;
+        final CardIssuerModel cardIssuer = selectedData.cardIssuer;
+        final CuotaModel cuota = selectedData.cuota;
 
-    public void showPaymentMethodsErrorAndRetryMessage() {
-
-    }
-
-    public void showDataInFirstView(long amount, String paymentMethod, String cardIssuer, String cuotas) {
-
-    }
-
-    public void showCardIssuersErrorAndRetryMessage() {
-
+        return "Monto seleccionado: \n$" + selectedData.amount +
+                "\n\nMetodo de pago seleccionado: \n" + paymentMethod.getName() + " (id: " + paymentMethod.getId() + ")" +
+                "\n\nBanco seleccionado: \n" + cardIssuer.getName() + " (id: " + cardIssuer.getId() + ")" +
+                "\n\nCuota seleccionada: " + cuota.getRecommendedMessage() + " (installments: " + cuota.getInstallments() + ")";
     }
 }

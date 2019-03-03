@@ -1,4 +1,4 @@
-package com.nelsonalfo.paymentapp.presentation.adapters;
+package com.nelsonalfo.paymentapp.commons.views;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -13,9 +13,9 @@ import butterknife.ButterKnife;
 
 public abstract class ImageAndTitleViewHolder<T> extends RecyclerView.ViewHolder {
     @BindView(R.id.title)
-    TextView title;
+    protected TextView title;
     @BindView(R.id.image)
-    ImageView image;
+    protected ImageView image;
 
     public ImageAndTitleViewHolder(@NonNull View itemView) {
         super(itemView);

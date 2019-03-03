@@ -1,8 +1,9 @@
-package com.nelsonalfo.paymentapp.presentation.adapters;
+package com.nelsonalfo.paymentapp.presentation.cardissuers;
 
 import android.view.View;
 
 import com.nelsonalfo.paymentapp.models.CardIssuerModel;
+import com.nelsonalfo.paymentapp.commons.views.ImageAndTitleRecyclerViewAdapter;
 
 import java.util.List;
 

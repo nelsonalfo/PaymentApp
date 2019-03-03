@@ -1,4 +1,4 @@
-package com.nelsonalfo.paymentapp.presentation.adapters;
+package com.nelsonalfo.paymentapp.commons.views;
 
 import android.content.Context;
 import android.support.annotation.NonNull;

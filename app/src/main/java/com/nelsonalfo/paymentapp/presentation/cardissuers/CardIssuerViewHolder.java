@@ -1,9 +1,10 @@
-package com.nelsonalfo.paymentapp.presentation.adapters;
+package com.nelsonalfo.paymentapp.presentation.cardissuers;
 
 import android.support.annotation.NonNull;
 import android.view.View;
 
 import com.nelsonalfo.paymentapp.models.CardIssuerModel;
+import com.nelsonalfo.paymentapp.commons.views.ImageAndTitleViewHolder;
 import com.squareup.picasso.Picasso;
 
 public class CardIssuerViewHolder extends ImageAndTitleViewHolder<CardIssuerModel> {

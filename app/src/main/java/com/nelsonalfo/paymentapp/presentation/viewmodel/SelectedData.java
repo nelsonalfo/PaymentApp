@@ -1,4 +1,4 @@
-package com.nelsonalfo.paymentapp.presentation;
+package com.nelsonalfo.paymentapp.presentation.viewmodel;
 
 import com.nelsonalfo.paymentapp.models.CardIssuerModel;
 import com.nelsonalfo.paymentapp.models.CuotaModel;

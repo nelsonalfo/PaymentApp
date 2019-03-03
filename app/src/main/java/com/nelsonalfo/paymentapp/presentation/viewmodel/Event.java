@@ -1,4 +1,4 @@
-package com.nelsonalfo.paymentapp.presentation;
+package com.nelsonalfo.paymentapp.presentation.viewmodel;
 
 public class Event<T> {
     private T content;
