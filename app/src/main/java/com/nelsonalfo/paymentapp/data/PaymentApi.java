@@ -1,8 +1,8 @@
 package com.nelsonalfo.paymentapp.data;
 
-import com.nelsonalfo.paymentapp.models.CardIssuerModel;
-import com.nelsonalfo.paymentapp.models.InstallmentModel;
-import com.nelsonalfo.paymentapp.models.PaymentMethodModel;
+import com.nelsonalfo.paymentapp.models.CardIssuer;
+import com.nelsonalfo.paymentapp.models.Installment;
+import com.nelsonalfo.paymentapp.models.PaymentMethod;
 
 import java.util.List;
 
@@ -17,15 +17,15 @@ import static com.nelsonalfo.paymentapp.commons.Constants.VERSION;
 
 public interface PaymentApi {
     @GET(VERSION + PAYMENT_METHODS)
-    Single<List<PaymentMethodModel>> getPaymentMethods(@Query("public_key") String publicKey);
+    Single<List<PaymentMethod>> getPaymentMethods(@Query("public_key") String publicKey);
 
     @GET(VERSION + PAYMENT_METHODS + CARD_ISSUERS)
-    Single<List<CardIssuerModel>> getCardIssuers(@Query("public_key") String publicKey,
-                                                 @Query("payment_method_id") String paymentMethodId);
+    Single<List<CardIssuer>> getCardIssuers(@Query("public_key") String publicKey,
+                                            @Query("payment_method_id") String paymentMethodId);
 
     @GET(VERSION + PAYMENT_METHODS + INSTALLMENTS)
-    Single<List<InstallmentModel>> getCuotas(@Query("public_key") String publicKey,
-                                             @Query("amount") Long amount,
-                                             @Query("payment_method_id") String paymentMethodId,
-                                             @Query("issuer.id") String issuerId);
+    Single<List<Installment>> getCuotas(@Query("public_key") String publicKey,
+                                        @Query("amount") Long amount,
+                                        @Query("payment_method_id") String paymentMethodId,
+                                        @Query("issuer.id") String issuerId);
 }

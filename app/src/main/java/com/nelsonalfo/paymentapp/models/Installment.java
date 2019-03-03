@@ -4,23 +4,23 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class InstallmentModel {
+public class Installment {
 
     @SerializedName("payer_costs")
-    private List<CuotaModel> cuotas;
+    private List<Cuota> cuotas;
 
-    public InstallmentModel() {
+    public Installment() {
     }
 
-    public InstallmentModel(List<CuotaModel> cuotas) {
+    public Installment(List<Cuota> cuotas) {
         this.cuotas = cuotas;
     }
 
-    public List<CuotaModel> getCuotas() {
+    public List<Cuota> getCuotas() {
         return cuotas;
     }
 
-    public void setCuotas(List<CuotaModel> cuotas) {
+    public void setCuotas(List<Cuota> cuotas) {
         this.cuotas = cuotas;
     }
 }

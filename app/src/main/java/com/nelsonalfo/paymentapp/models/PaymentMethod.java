@@ -2,23 +2,29 @@ package com.nelsonalfo.paymentapp.models;
 
 import com.google.gson.annotations.SerializedName;
 
-public class CardIssuerModel {
+public class PaymentMethod {
 
     @SerializedName("id")
     private String id;
     @SerializedName("name")
     private String name;
+    @SerializedName("status")
+    private String status;
     @SerializedName("thumbnail")
     private String thumbnail;
+    @SerializedName("payment_type_id")
+    private String paymentTypeId;
 
 
-    public CardIssuerModel(String id, String name, String thumbnail) {
+    public PaymentMethod(String id, String name, String paymentTypeId, String status, String thumbnail) {
         this.id = id;
         this.name = name;
+        this.paymentTypeId = paymentTypeId;
+        this.status = status;
         this.thumbnail = thumbnail;
     }
 
-    public CardIssuerModel() {
+    public PaymentMethod() {
     }
 
     public String getId() {
@@ -27,6 +33,10 @@ public class CardIssuerModel {
 
     public String getName() {
         return name;
+    }
+
+    public String getStatus() {
+        return status;
     }
 
     public String getThumbnail() {
@@ -41,7 +51,19 @@ public class CardIssuerModel {
         this.name = name;
     }
 
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public void setThumbnail(String thumbnail) {
         this.thumbnail = thumbnail;
+    }
+
+    public String getPaymentTypeId() {
+        return paymentTypeId;
+    }
+
+    public void setPaymentTypeId(String paymentTypeId) {
+        this.paymentTypeId = paymentTypeId;
     }
 }

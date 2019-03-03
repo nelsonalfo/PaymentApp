@@ -5,9 +5,9 @@ import android.arch.lifecycle.ViewModel;
 
 import com.nelsonalfo.paymentapp.data.PaymentRepository;
 import com.nelsonalfo.paymentapp.data.PaymentRepository.Params;
-import com.nelsonalfo.paymentapp.models.CardIssuerModel;
-import com.nelsonalfo.paymentapp.models.CuotaModel;
-import com.nelsonalfo.paymentapp.models.PaymentMethodModel;
+import com.nelsonalfo.paymentapp.models.CardIssuer;
+import com.nelsonalfo.paymentapp.models.Cuota;
+import com.nelsonalfo.paymentapp.models.PaymentMethod;
 
 import java.util.List;
 
@@ -15,12 +15,12 @@ public class PaymentStepsViewModel extends ViewModel {
     private PaymentRepository repository;
 
     private long amount;
-    private PaymentMethodModel paymentMethod;
-    private CardIssuerModel cardIssuer;
+    private PaymentMethod paymentMethod;
+    private CardIssuer cardIssuer;
 
-    public final MutableLiveData<List<PaymentMethodModel>> paymentMethods = new MutableLiveData<>();
-    public final MutableLiveData<List<CardIssuerModel>> cardIssuers = new MutableLiveData<>();
-    public final MutableLiveData<List<CuotaModel>> cuotas = new MutableLiveData<>();
+    public final MutableLiveData<List<PaymentMethod>> paymentMethods = new MutableLiveData<>();
+    public final MutableLiveData<List<CardIssuer>> cardIssuers = new MutableLiveData<>();
+    public final MutableLiveData<List<Cuota>> cuotas = new MutableLiveData<>();
 
     public final MutableLiveData<Boolean> showLoading = new MutableLiveData<>();
     public final MutableLiveData<Event<Boolean>> showErrorMessage = new MutableLiveData<>();
@@ -41,7 +41,7 @@ public class PaymentStepsViewModel extends ViewModel {
         repository.getPaymentMethods(this::showPaymentMethods, error -> showErrorMessage());
     }
 
-    private void showPaymentMethods(List<PaymentMethodModel> paymentMethods) {
+    private void showPaymentMethods(List<PaymentMethod> paymentMethods) {
         showLoading.setValue(false);
 
         if (paymentMethods != null && !paymentMethods.isEmpty()) {
@@ -56,7 +56,7 @@ public class PaymentStepsViewModel extends ViewModel {
         showErrorMessage.setValue(new Event<>(true));
     }
 
-    public void fetchCardIssuers(PaymentMethodModel selectedPaymentMethod) {
+    public void fetchCardIssuers(PaymentMethod selectedPaymentMethod) {
         if (selectedPaymentMethod != null && containsId(selectedPaymentMethod.getId())) {
             this.paymentMethod = selectedPaymentMethod;
 
@@ -69,7 +69,7 @@ public class PaymentStepsViewModel extends ViewModel {
         return id != null && !id.isEmpty();
     }
 
-    private void showCardIssuers(List<CardIssuerModel> cardIssuers) {
+    private void showCardIssuers(List<CardIssuer> cardIssuers) {
         showLoading.setValue(false);
 
         if (cardIssuers != null && !cardIssuers.isEmpty()) {
@@ -79,7 +79,7 @@ public class PaymentStepsViewModel extends ViewModel {
         }
     }
 
-    public void fetchCuotas(CardIssuerModel selectedCardIssuer) {
+    public void fetchCuotas(CardIssuer selectedCardIssuer) {
         if (selectedCardIssuer != null && containsId(selectedCardIssuer.getId())) {
             cardIssuer = selectedCardIssuer;
 
@@ -89,7 +89,7 @@ public class PaymentStepsViewModel extends ViewModel {
         }
     }
 
-    private void showCuotas(List<CuotaModel> cuotas) {
+    private void showCuotas(List<Cuota> cuotas) {
         showLoading.setValue(false);
 
         if (cuotas != null && !cuotas.isEmpty()) {
@@ -99,7 +99,7 @@ public class PaymentStepsViewModel extends ViewModel {
         }
     }
 
-    public void showSelectedData(CuotaModel selectedCuota) {
+    public void showSelectedData(Cuota selectedCuota) {
         final SelectedData selectedData = new SelectedData(amount, paymentMethod, cardIssuer, selectedCuota);
 
         selectedDataMessage.setValue(new Event<>(selectedData));
@@ -109,11 +109,11 @@ public class PaymentStepsViewModel extends ViewModel {
         return amount;
     }
 
-    public PaymentMethodModel getSelectedPaymentMethod() {
+    public PaymentMethod getSelectedPaymentMethod() {
         return paymentMethod;
     }
 
-    public CardIssuerModel getCardIssuer() {
+    public CardIssuer getCardIssuer() {
         return cardIssuer;
     }
 }

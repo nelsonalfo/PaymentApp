@@ -2,7 +2,7 @@ package com.nelsonalfo.paymentapp.models;
 
 import com.google.gson.annotations.SerializedName;
 
-public class CuotaModel {
+public class Cuota {
 
     @SerializedName("installments")
     private int installments;
@@ -12,10 +12,10 @@ public class CuotaModel {
 
 
 
-    public CuotaModel() {
+    public Cuota() {
     }
 
-    public CuotaModel(int installments, String recommendedMessage) {
+    public Cuota(int installments, String recommendedMessage) {
         this.installments = installments;
         this.recommendedMessage = recommendedMessage;
     }

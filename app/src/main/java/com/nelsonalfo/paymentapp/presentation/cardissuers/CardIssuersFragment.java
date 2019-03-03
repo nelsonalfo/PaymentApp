@@ -2,12 +2,12 @@ package com.nelsonalfo.paymentapp.presentation.cardissuers;
 
 import com.nelsonalfo.paymentapp.R;
 import com.nelsonalfo.paymentapp.commons.views.PaymentStepsFragment;
-import com.nelsonalfo.paymentapp.models.CardIssuerModel;
+import com.nelsonalfo.paymentapp.models.CardIssuer;
 
 import java.util.Collections;
 import java.util.List;
 
-public class CardIssuersFragment extends PaymentStepsFragment<CardIssuerModel> {
+public class CardIssuersFragment extends PaymentStepsFragment<CardIssuer> {
     private CardIssuersAdapter adapter;
 
     public CardIssuersFragment() {
@@ -36,12 +36,12 @@ public class CardIssuersFragment extends PaymentStepsFragment<CardIssuerModel> {
         return adapter;
     }
 
-    public void showCardIssuers(List<CardIssuerModel> cardIssuers) {
+    public void showCardIssuers(List<CardIssuer> cardIssuers) {
         getAdapter().setData(cardIssuers);
     }
 
     @Override
-    public void onItemSelected(CardIssuerModel item) {
+    public void onItemSelected(CardIssuer item) {
         viewModel.fetchCuotas(item);
     }
 }

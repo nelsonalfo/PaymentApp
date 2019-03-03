@@ -5,9 +5,9 @@ import android.arch.lifecycle.Observer;
 
 import com.nelsonalfo.paymentapp.data.PaymentRepository;
 import com.nelsonalfo.paymentapp.data.PaymentRepository.Params;
-import com.nelsonalfo.paymentapp.models.CardIssuerModel;
-import com.nelsonalfo.paymentapp.models.CuotaModel;
-import com.nelsonalfo.paymentapp.models.PaymentMethodModel;
+import com.nelsonalfo.paymentapp.models.CardIssuer;
+import com.nelsonalfo.paymentapp.models.Cuota;
+import com.nelsonalfo.paymentapp.models.PaymentMethod;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -47,22 +47,22 @@ public class PaymentStepsViewModelTest {
     @Mock
     private Observer<Event<SelectedData>> selectedDataEventObserver;
     @Mock
-    private Observer<List<PaymentMethodModel>> paymentMethodsObserver;
+    private Observer<List<PaymentMethod>> paymentMethodsObserver;
     @Mock
-    private Observer<List<CardIssuerModel>> cardIssuersObserver;
+    private Observer<List<CardIssuer>> cardIssuersObserver;
     @Mock
-    private Observer<List<CuotaModel>> cuotasObserver;
+    private Observer<List<Cuota>> cuotasObserver;
     @Mock
     private PaymentRepository repository;
     @Mock
     private ResponseBody mockErrorBody;
 
     @Captor
-    private ArgumentCaptor<Consumer<List<PaymentMethodModel>>> consumerPaymentMethodsSuccess;
+    private ArgumentCaptor<Consumer<List<PaymentMethod>>> consumerPaymentMethodsSuccess;
     @Captor
-    private ArgumentCaptor<Consumer<List<CardIssuerModel>>> consumerCardIssuersSuccess;
+    private ArgumentCaptor<Consumer<List<CardIssuer>>> consumerCardIssuersSuccess;
     @Captor
-    private ArgumentCaptor<Consumer<List<CuotaModel>>> consumerCuotasSuccess;
+    private ArgumentCaptor<Consumer<List<Cuota>>> consumerCuotasSuccess;
     @Captor
     private ArgumentCaptor<Consumer<Throwable>> consumerError;
     @Captor
@@ -74,9 +74,9 @@ public class PaymentStepsViewModelTest {
 
     private HttpException mockError;
 
-    private CardIssuerModel selectedCardIssuer;
-    private PaymentMethodModel selectedPaymentMethod;
-    private CuotaModel selectedCuota;
+    private CardIssuer selectedCardIssuer;
+    private PaymentMethod selectedPaymentMethod;
+    private Cuota selectedCuota;
     private long montoIngresado;
 
     private PaymentStepsViewModel viewModel;
@@ -85,9 +85,9 @@ public class PaymentStepsViewModelTest {
     @Before
     public void setUp() {
         montoIngresado = 4000;
-        selectedPaymentMethod = new PaymentMethodModel("visa", "Visa", "credit_card", "active", "http://img.mlstatic.com/org-img/MP3/API/logos/naranja.gif");
-        selectedCardIssuer = new CardIssuerModel("272", "Banco Comafi", "http://img.mlstatic.com/org-img/MP3/API/logos/272.gif");
-        selectedCuota = new CuotaModel(1, "1 cuota de $ 4.000,00 ($ 4.000,00)");
+        selectedPaymentMethod = new PaymentMethod("visa", "Visa", "credit_card", "active", "http://img.mlstatic.com/org-img/MP3/API/logos/naranja.gif");
+        selectedCardIssuer = new CardIssuer("272", "Banco Comafi", "http://img.mlstatic.com/org-img/MP3/API/logos/272.gif");
+        selectedCuota = new Cuota(1, "1 cuota de $ 4.000,00 ($ 4.000,00)");
 
         mockError = new HttpException(Response.error(404, mockErrorBody));
 
@@ -121,7 +121,7 @@ public class PaymentStepsViewModelTest {
 
     @Test
     public void given_repositoryReturnPaymentMethods_when_fetchPaymentMethods_then_hideLoading() throws Exception {
-        final List<PaymentMethodModel> paymentMethods = getPaymentMethodStubs();
+        final List<PaymentMethod> paymentMethods = getPaymentMethodStubs();
         viewModel.showLoading.observeForever(showLoadingObserver);
 
         viewModel.fetchPaymentMethods(montoIngresado);
@@ -134,7 +134,7 @@ public class PaymentStepsViewModelTest {
 
     @Test
     public void given_repositoryReturnPaymentMethods_when_fetchPaymentMethods_then_showPaymentMethods() throws Exception {
-        final List<PaymentMethodModel> paymentMethods = getPaymentMethodStubs();
+        final List<PaymentMethod> paymentMethods = getPaymentMethodStubs();
         viewModel.paymentMethods.observeForever(paymentMethodsObserver);
 
         viewModel.fetchPaymentMethods(montoIngresado);
@@ -171,7 +171,7 @@ public class PaymentStepsViewModelTest {
 
     @Test
     public void given_repositoryReturnZeroPaymentMethods_when_fetchPaymentMethods_then_showNoPaymentMethodsMessage() throws Exception {
-        final List<PaymentMethodModel> paymentMethods = new ArrayList<>();
+        final List<PaymentMethod> paymentMethods = new ArrayList<>();
         viewModel.showNoPaymentMethodsMessage.observeForever(booleanEventObserver);
 
         viewModel.fetchPaymentMethods(montoIngresado);
@@ -184,7 +184,7 @@ public class PaymentStepsViewModelTest {
 
     @Test
     public void given_repositoryReturnNull_when_fetchPaymentMethods_then_showNoPaymentMethodsMessage() throws Exception {
-        final ArrayList<PaymentMethodModel> paymentMethods = null;
+        final ArrayList<PaymentMethod> paymentMethods = null;
         viewModel.showNoPaymentMethodsMessage.observeForever(booleanEventObserver);
 
         viewModel.fetchPaymentMethods(montoIngresado);
@@ -221,7 +221,7 @@ public class PaymentStepsViewModelTest {
 
     @Test
     public void given_repositoryReturnCardIssuers_when_fetchCardIssuers_then_hideLoading() throws Exception {
-        final List<CardIssuerModel> cardIssuers = getCardIssuerStubs();
+        final List<CardIssuer> cardIssuers = getCardIssuerStubs();
         viewModel.showLoading.observeForever(showLoadingObserver);
 
         viewModel.fetchCardIssuers(selectedPaymentMethod);
@@ -234,7 +234,7 @@ public class PaymentStepsViewModelTest {
 
     @Test
     public void given_repositoryReturnCardIssuers_when_fetchCardIssuers_then_showCardIssuers() throws Exception {
-        final List<CardIssuerModel> cardIssuers = getCardIssuerStubs();
+        final List<CardIssuer> cardIssuers = getCardIssuerStubs();
         viewModel.cardIssuers.observeForever(cardIssuersObserver);
 
         viewModel.fetchCardIssuers(selectedPaymentMethod);
@@ -273,7 +273,7 @@ public class PaymentStepsViewModelTest {
 
     @Test
     public void given_repositoryReturnZeroCardIssuers_when_fetchCardIssuers_then_showNoCardIssuersMessage() throws Exception {
-        final List<CardIssuerModel> cardIssuers = new ArrayList<>();
+        final List<CardIssuer> cardIssuers = new ArrayList<>();
         viewModel.showNoCardIssuersMessage.observeForever(booleanEventObserver);
 
         viewModel.fetchCardIssuers(selectedPaymentMethod);
@@ -287,7 +287,7 @@ public class PaymentStepsViewModelTest {
 
     @Test
     public void given_repositoryReturnNull_when_fetchCardIssuers_then_showNoCardIssuersMessage() throws Exception {
-        final List<CardIssuerModel> cardIssuers = null;
+        final List<CardIssuer> cardIssuers = null;
         viewModel.showNoCardIssuersMessage.observeForever(booleanEventObserver);
 
         viewModel.fetchCardIssuers(selectedPaymentMethod);
@@ -301,7 +301,7 @@ public class PaymentStepsViewModelTest {
 
     @Test
     public void given_paramIsNull_when_fetchCardIssuers_then_doNothing() {
-        final PaymentMethodModel selectedPaymentMethod = null;
+        final PaymentMethod selectedPaymentMethod = null;
 
         viewModel.fetchCardIssuers(selectedPaymentMethod);
 
@@ -407,7 +407,7 @@ public class PaymentStepsViewModelTest {
 
     @Test
     public void given_repositoryReturnCuotas_when_fetchCuotas_then_showCuotas() throws Exception {
-        final List<CuotaModel> cuotaStubs = getCuotaStubs();
+        final List<Cuota> cuotaStubs = getCuotaStubs();
         viewModel.fetchPaymentMethods(montoIngresado);
         viewModel.fetchCardIssuers(selectedPaymentMethod);
         viewModel.cuotas.observeForever(cuotasObserver);
@@ -422,7 +422,7 @@ public class PaymentStepsViewModelTest {
 
     @Test
     public void given_repositoryReturnCuotas_when_fetchCuotas_then_hideLoading() throws Exception {
-        final List<CuotaModel> cuotaStubs = getCuotaStubs();
+        final List<Cuota> cuotaStubs = getCuotaStubs();
         viewModel.fetchPaymentMethods(montoIngresado);
         viewModel.fetchCardIssuers(selectedPaymentMethod);
         viewModel.showLoading.observeForever(showLoadingObserver);
@@ -437,7 +437,7 @@ public class PaymentStepsViewModelTest {
 
     @Test
     public void given_repositoryReturnZeroCuotas_when_fetchCuotas_then_showNoCuotasMessage() throws Exception {
-        final List<CuotaModel> cuotaStubs = new ArrayList<>();
+        final List<Cuota> cuotaStubs = new ArrayList<>();
         viewModel.fetchPaymentMethods(montoIngresado);
         viewModel.fetchCardIssuers(selectedPaymentMethod);
         viewModel.showNoCuotasMessage.observeForever(booleanEventObserver);
@@ -453,7 +453,7 @@ public class PaymentStepsViewModelTest {
 
     @Test
     public void given_repositoryReturnNull_when_fetchCuotas_then_showNoCuotasMessage() throws Exception {
-        final List<CuotaModel> cuotaStubs = null;
+        final List<Cuota> cuotaStubs = null;
         viewModel.fetchPaymentMethods(montoIngresado);
         viewModel.fetchCardIssuers(selectedPaymentMethod);
         viewModel.showNoCuotasMessage.observeForever(booleanEventObserver);

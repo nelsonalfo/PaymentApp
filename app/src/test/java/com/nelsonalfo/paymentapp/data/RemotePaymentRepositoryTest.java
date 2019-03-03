@@ -4,10 +4,10 @@ import com.nelsonalfo.paymentapp.commons.Constants;
 import com.nelsonalfo.paymentapp.commons.rxjava.PostExecutionThread;
 import com.nelsonalfo.paymentapp.commons.rxjava.ThreadExecutor;
 import com.nelsonalfo.paymentapp.data.PaymentRepository.Params;
-import com.nelsonalfo.paymentapp.models.CardIssuerModel;
-import com.nelsonalfo.paymentapp.models.CuotaModel;
-import com.nelsonalfo.paymentapp.models.InstallmentModel;
-import com.nelsonalfo.paymentapp.models.PaymentMethodModel;
+import com.nelsonalfo.paymentapp.models.CardIssuer;
+import com.nelsonalfo.paymentapp.models.Cuota;
+import com.nelsonalfo.paymentapp.models.Installment;
+import com.nelsonalfo.paymentapp.models.PaymentMethod;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -47,18 +47,18 @@ public class RemotePaymentRepositoryTest {
     @Mock
     private Consumer<Throwable> consumerError;
     @Mock
-    private Consumer<List<PaymentMethodModel>> paymentMethodsConsumerSuccess;
+    private Consumer<List<PaymentMethod>> paymentMethodsConsumerSuccess;
     @Mock
-    private Consumer<List<CardIssuerModel>> cardIssuersConsumerSuccess;
+    private Consumer<List<CardIssuer>> cardIssuersConsumerSuccess;
     @Mock
-    private Consumer<List<CuotaModel>> cuotasConsumerSuccess;
+    private Consumer<List<Cuota>> cuotasConsumerSuccess;
     @Mock
     private ThreadExecutor backThread;
     @Mock
     private PostExecutionThread uiThread;
 
     @Captor
-    private ArgumentCaptor<List<PaymentMethodModel>> paymentMethodsCaptor;
+    private ArgumentCaptor<List<PaymentMethod>> paymentMethodsCaptor;
 
     private HttpException mockError;
     private TestScheduler testScheduler;
@@ -85,7 +85,7 @@ public class RemotePaymentRepositoryTest {
 
     @Test
     public void given_apiReturnPaymentMethods_when_getPaymentMethods_then_returnThisPaymentMethods() throws Exception {
-        final List<PaymentMethodModel> paymentMethods = getPaymentMethodStubs();
+        final List<PaymentMethod> paymentMethods = getPaymentMethodStubs();
         doReturn(Single.just(paymentMethods)).when(api).getPaymentMethods(eq(Constants.PUBLIC_KEY));
 
         repository.getPaymentMethods(paymentMethodsConsumerSuccess, consumerError);
@@ -98,7 +98,7 @@ public class RemotePaymentRepositoryTest {
 
     @Test
     public void given_apiReturnZeroPaymentMethods_when_getPaymentMethods_then_returnThisPaymentMethods() throws Exception {
-        final List<PaymentMethodModel> paymentMethods = new ArrayList<>();
+        final List<PaymentMethod> paymentMethods = new ArrayList<>();
         doReturn(Single.just(paymentMethods)).when(api).getPaymentMethods(eq(Constants.PUBLIC_KEY));
 
         repository.getPaymentMethods(paymentMethodsConsumerSuccess, consumerError);
@@ -111,7 +111,7 @@ public class RemotePaymentRepositoryTest {
 
     @Test
     public void given_apiReturnPaymentMethodsWithDifferentStatus_when_getPaymentMethods_then_returnPaymentMethodsWithActiveStatus() throws Exception {
-        final List<PaymentMethodModel> paymentMethods = getPaymentMethodStubs();
+        final List<PaymentMethod> paymentMethods = getPaymentMethodStubs();
         paymentMethods.get(1).setStatus("inactive");
         doReturn(Single.just(paymentMethods)).when(api).getPaymentMethods(eq(Constants.PUBLIC_KEY));
 
@@ -127,7 +127,7 @@ public class RemotePaymentRepositoryTest {
 
     @Test
     public void given_apiReturnPaymentMethods_when_getPaymentMethods_then_returnCreditCardPaymentMethods() throws Exception {
-        final List<PaymentMethodModel> paymentMethods = getPaymentMethodStubs();
+        final List<PaymentMethod> paymentMethods = getPaymentMethodStubs();
         paymentMethods.get(1).setPaymentTypeId("debit_card");
         doReturn(Single.just(paymentMethods)).when(api).getPaymentMethods(eq(Constants.PUBLIC_KEY));
 
@@ -155,7 +155,7 @@ public class RemotePaymentRepositoryTest {
 
     @Test
     public void given_apiReturnCardIssuers_when_getCardIssuers_then_returnThisCardIssuers() throws Exception {
-        final List<CardIssuerModel> cardIssuerModels = getCardIssuerStubs();
+        final List<CardIssuer> cardIssuerModels = getCardIssuerStubs();
         doReturn(Single.just(cardIssuerModels)).when(api).getCardIssuers(eq(Constants.PUBLIC_KEY), anyString());
         final String paymentMethodId = "visa";
 
@@ -183,9 +183,9 @@ public class RemotePaymentRepositoryTest {
     @Test
     public void given_apiReturnInstallment_when_getCuotas_then_returnCuotasFromInstallment() throws Exception {
         final Params params = new Params(4000, "visa", "288");
-        final List<InstallmentModel> installmentStub = getInstallmentStubs();
+        final List<Installment> installmentStub = getInstallmentStubs();
         doReturn(Single.just(installmentStub)).when(api).getCuotas(eq(Constants.PUBLIC_KEY), anyLong(), anyString(), anyString());
-        final List<CuotaModel> expectedCuotas = installmentStub.get(0).getCuotas();
+        final List<Cuota> expectedCuotas = installmentStub.get(0).getCuotas();
 
         repository.getCuotas(params, cuotasConsumerSuccess, consumerError);
         testScheduler.triggerActions();

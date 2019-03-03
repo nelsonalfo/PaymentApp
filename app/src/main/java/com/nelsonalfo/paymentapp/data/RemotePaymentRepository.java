@@ -5,10 +5,10 @@ import android.annotation.SuppressLint;
 import com.nelsonalfo.paymentapp.commons.Constants;
 import com.nelsonalfo.paymentapp.commons.rxjava.PostExecutionThread;
 import com.nelsonalfo.paymentapp.commons.rxjava.ThreadExecutor;
-import com.nelsonalfo.paymentapp.models.CardIssuerModel;
-import com.nelsonalfo.paymentapp.models.CuotaModel;
-import com.nelsonalfo.paymentapp.models.InstallmentModel;
-import com.nelsonalfo.paymentapp.models.PaymentMethodModel;
+import com.nelsonalfo.paymentapp.models.CardIssuer;
+import com.nelsonalfo.paymentapp.models.Cuota;
+import com.nelsonalfo.paymentapp.models.Installment;
+import com.nelsonalfo.paymentapp.models.PaymentMethod;
 
 import java.util.List;
 
@@ -32,7 +32,7 @@ public class RemotePaymentRepository implements PaymentRepository {
 
 
     @Override
-    public void getPaymentMethods(Consumer<List<PaymentMethodModel>> success, Consumer<Throwable> error) {
+    public void getPaymentMethods(Consumer<List<PaymentMethod>> success, Consumer<Throwable> error) {
         api.getPaymentMethods(Constants.PUBLIC_KEY)
                 .subscribeOn(backThread.getScheduler())
                 .observeOn(uiThread.getScheduler())
@@ -43,17 +43,17 @@ public class RemotePaymentRepository implements PaymentRepository {
                 .subscribe(success, error);
     }
 
-    private List<PaymentMethodModel> getPaymentMethods(List<PaymentMethodModel> paymentMethods) {
+    private List<PaymentMethod> getPaymentMethods(List<PaymentMethod> paymentMethods) {
         return paymentMethods;
     }
 
-    private boolean isActiveCreditCard(PaymentMethodModel paymentMethodModel) {
+    private boolean isActiveCreditCard(PaymentMethod paymentMethodModel) {
         return paymentMethodModel.getStatus().equals("active")
                 && paymentMethodModel.getPaymentTypeId().equals("credit_card");
     }
 
     @Override
-    public void getCardIssuers(String paymentMethodId, Consumer<List<CardIssuerModel>> success, Consumer<Throwable> error) {
+    public void getCardIssuers(String paymentMethodId, Consumer<List<CardIssuer>> success, Consumer<Throwable> error) {
         api.getCardIssuers(Constants.PUBLIC_KEY, paymentMethodId)
                 .subscribeOn(backThread.getScheduler())
                 .observeOn(uiThread.getScheduler())
@@ -61,7 +61,7 @@ public class RemotePaymentRepository implements PaymentRepository {
     }
 
     @Override
-    public void getCuotas(Params params, Consumer<List<CuotaModel>> success, Consumer<Throwable> error) {
+    public void getCuotas(Params params, Consumer<List<Cuota>> success, Consumer<Throwable> error) {
         api.getCuotas(Constants.PUBLIC_KEY, params.monto, params.paymentMethodId, params.issuerId)
                 .map(this::getCuotas)
                 .subscribeOn(backThread.getScheduler())
@@ -69,8 +69,8 @@ public class RemotePaymentRepository implements PaymentRepository {
                 .subscribe(success, error);
     }
 
-    private List<CuotaModel> getCuotas(List<InstallmentModel> installments) {
-        final InstallmentModel installment = installments.get(0);
+    private List<Cuota> getCuotas(List<Installment> installments) {
+        final Installment installment = installments.get(0);
         return installment.getCuotas();
     }
 }

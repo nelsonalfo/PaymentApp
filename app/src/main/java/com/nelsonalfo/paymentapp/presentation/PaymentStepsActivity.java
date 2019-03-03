@@ -8,9 +8,9 @@ import android.widget.Toast;
 import com.nelsonalfo.paymentapp.R;
 import com.nelsonalfo.paymentapp.commons.views.NonSwipeableViewPager;
 import com.nelsonalfo.paymentapp.data.PaymentRepository;
-import com.nelsonalfo.paymentapp.models.CardIssuerModel;
-import com.nelsonalfo.paymentapp.models.CuotaModel;
-import com.nelsonalfo.paymentapp.models.PaymentMethodModel;
+import com.nelsonalfo.paymentapp.models.CardIssuer;
+import com.nelsonalfo.paymentapp.models.Cuota;
+import com.nelsonalfo.paymentapp.models.PaymentMethod;
 import com.nelsonalfo.paymentapp.presentation.viewmodel.Event;
 import com.nelsonalfo.paymentapp.presentation.viewmodel.PaymentStepsViewModel;
 import com.nelsonalfo.paymentapp.presentation.viewmodel.SelectedData;
@@ -133,9 +133,9 @@ public class PaymentStepsActivity extends DaggerAppCompatActivity {
     }
 
     private String getMessage(SelectedData selectedData) {
-        final PaymentMethodModel paymentMethod = selectedData.paymentMethod;
-        final CardIssuerModel cardIssuer = selectedData.cardIssuer;
-        final CuotaModel cuota = selectedData.cuota;
+        final PaymentMethod paymentMethod = selectedData.paymentMethod;
+        final CardIssuer cardIssuer = selectedData.cardIssuer;
+        final Cuota cuota = selectedData.cuota;
 
         return "Monto seleccionado: \n$" + selectedData.amount +
                 "\n\nMetodo de pago seleccionado: \n" + paymentMethod.getName() + " (id: " + paymentMethod.getId() + ")" +

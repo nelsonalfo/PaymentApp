@@ -1,19 +1,19 @@
 package com.nelsonalfo.paymentapp.data;
 
-import com.nelsonalfo.paymentapp.models.CardIssuerModel;
-import com.nelsonalfo.paymentapp.models.CuotaModel;
-import com.nelsonalfo.paymentapp.models.PaymentMethodModel;
+import com.nelsonalfo.paymentapp.models.CardIssuer;
+import com.nelsonalfo.paymentapp.models.Cuota;
+import com.nelsonalfo.paymentapp.models.PaymentMethod;
 
 import java.util.List;
 
 import io.reactivex.functions.Consumer;
 
 public interface PaymentRepository {
-    void getPaymentMethods(Consumer<List<PaymentMethodModel>> success, Consumer<Throwable> error);
+    void getPaymentMethods(Consumer<List<PaymentMethod>> success, Consumer<Throwable> error);
 
-    void getCardIssuers(String paymentMethodId, Consumer<List<CardIssuerModel>> success, Consumer<Throwable> error);
+    void getCardIssuers(String paymentMethodId, Consumer<List<CardIssuer>> success, Consumer<Throwable> error);
 
-    void getCuotas(Params params, Consumer<List<CuotaModel>> success, Consumer<Throwable> error);
+    void getCuotas(Params params, Consumer<List<Cuota>> success, Consumer<Throwable> error);
 
     class Params {
         public long monto;
