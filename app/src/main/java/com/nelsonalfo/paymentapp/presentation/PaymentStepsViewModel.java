@@ -1,6 +1,5 @@
 package com.nelsonalfo.paymentapp.presentation;
 
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 
@@ -16,24 +15,26 @@ public class PaymentStepsViewModel extends ViewModel {
     private long amount;
     private PaymentMethodModel paymentMethod;
 
-    private MutableLiveData<List<PaymentMethodModel>> paymentMethods = new MutableLiveData<>();
-    private MutableLiveData<List<CardIssuerModel>> cardIssuers = new MutableLiveData<>();
+    public final MutableLiveData<List<PaymentMethodModel>> paymentMethods = new MutableLiveData<>();
+    public final MutableLiveData<List<CardIssuerModel>> cardIssuers = new MutableLiveData<>();
 
-    private MutableLiveData<Boolean> showLoading = new MutableLiveData<>();
-    private MutableLiveData<Event<Boolean>> showErrorMessage = new MutableLiveData<>();
-    private MutableLiveData<Event<Boolean>> showNoPaymentMethodsMessage = new MutableLiveData<>();
-    private MutableLiveData<Event<Boolean>> showNoCardIssuersMessage = new MutableLiveData<>();
+    public final MutableLiveData<Boolean> showLoading = new MutableLiveData<>();
+    public final MutableLiveData<Event<Boolean>> showErrorMessage = new MutableLiveData<>();
+    public final MutableLiveData<Event<Boolean>> showNoPaymentMethodsMessage = new MutableLiveData<>();
+    public final MutableLiveData<Event<Boolean>> showNoCardIssuersMessage = new MutableLiveData<>();
 
 
-    public void setRepository(PaymentRepository repository) {
+    void setRepository(PaymentRepository repository) {
         this.repository = repository;
     }
 
-    public void goToSelectPaymentMethod(long montoIngresado) {
+    public void fetchPaymentMethods(long montoIngresado) {
         amount = montoIngresado;
 
-        showLoading.setValue(true);
-        repository.getPaymentMethods(this::showPaymentMethods, error -> showErrorMessage());
+        if (paymentMethods.getValue() == null) {
+            showLoading.setValue(true);
+            repository.getPaymentMethods(this::showPaymentMethods, error -> showErrorMessage());
+        }
     }
 
     private void showPaymentMethods(List<PaymentMethodModel> paymentMethods) {
@@ -51,12 +52,15 @@ public class PaymentStepsViewModel extends ViewModel {
         showErrorMessage.setValue(new Event<>(true));
     }
 
-    public void goToSelectCardIssuers(PaymentMethodModel selectedPaymentMethod) {
+    public void fetchCardIssuers(PaymentMethodModel selectedPaymentMethod) {
         if (selectedPaymentMethod != null && containsId(selectedPaymentMethod)) {
             this.paymentMethod = selectedPaymentMethod;
 
-            showLoading.setValue(true);
-            repository.getCardIssuers(selectedPaymentMethod.getId(), this::showCardIssuers, error -> showErrorMessage());
+            if (cardIssuers.getValue() == null) {
+                showLoading.setValue(true);
+                repository.getCardIssuers(selectedPaymentMethod.getId(), this::showCardIssuers, error -> showErrorMessage());
+            }
+
         }
     }
 
@@ -75,36 +79,15 @@ public class PaymentStepsViewModel extends ViewModel {
     }
 
 
+    public void fetchInstallments(CardIssuerModel selectedCardIssuer) {
+
+    }
+
     public long getAmount() {
         return amount;
     }
 
     public PaymentMethodModel getSelectedPaymentMethod() {
         return paymentMethod;
-    }
-
-
-    public LiveData<List<PaymentMethodModel>> getPaymentMethodsLiveData() {
-        return paymentMethods;
-    }
-
-    public LiveData<Boolean> getShowLoadingLiveData() {
-        return showLoading;
-    }
-
-    public LiveData<Event<Boolean>> getShowErrorMessageLiveData() {
-        return showErrorMessage;
-    }
-
-    public LiveData<Event<Boolean>> getShowNoPaymentMethodsMessageLiveData() {
-        return showNoPaymentMethodsMessage;
-    }
-
-    public LiveData<List<CardIssuerModel>> getCardIssuersLiveData() {
-        return cardIssuers;
-    }
-
-    public LiveData<Event<Boolean>> getShowNoCardIssuersMessageLiveData() {
-        return showNoCardIssuersMessage;
     }
 }

@@ -8,10 +8,8 @@ import com.nelsonalfo.paymentapp.R;
 import com.nelsonalfo.paymentapp.commons.views.NonSwipeableViewPager;
 import com.nelsonalfo.paymentapp.data.PaymentRepository;
 import com.nelsonalfo.paymentapp.models.CardIssuerModel;
-import com.nelsonalfo.paymentapp.models.PaymentMethodModel;
 import com.nelsonalfo.paymentapp.presentation.adapters.PaymentStepsAdapter;
 import com.nelsonalfo.paymentapp.presentation.fragments.AmountFragment;
-import com.nelsonalfo.paymentapp.presentation.fragments.PaymentMethodsFragment;
 
 import java.util.List;
 
@@ -22,8 +20,7 @@ import butterknife.ButterKnife;
 import dagger.android.support.DaggerAppCompatActivity;
 
 public class PaymentStepsActivity extends DaggerAppCompatActivity implements
-        AmountFragment.Listener,
-        PaymentMethodsFragment.Listener {
+        AmountFragment.Listener {
 
     @Inject
     PaymentRepository repository;
@@ -57,14 +54,21 @@ public class PaymentStepsActivity extends DaggerAppCompatActivity implements
         viewModel = ViewModelProviders.of(this).get(PaymentStepsViewModel.class);
         viewModel.setRepository(repository);
 
-        viewModel.getShowLoadingLiveData().observe(this, this::showLoading);
-        viewModel.getShowErrorMessageLiveData().observe(this, this::showErrorMessage);
-        viewModel.getCardIssuersLiveData().observe(this, this::showCardIssuers);
-        viewModel.getPaymentMethodsLiveData().observe(this, this::showPaymentMethods);
-        viewModel.getShowNoCardIssuersMessageLiveData().observe(this, this::showNoCardIssuersMessage);
-        viewModel.getShowNoPaymentMethodsMessageLiveData().observe(this, this::showNoPaymentMethodsMessage);
+        viewModel.showLoading.observe(this, this::showLoading);
+        viewModel.showErrorMessage.observe(this, this::showErrorMessage);
+        viewModel.cardIssuers.observe(this, cardIssuers -> goToCardIssuers());
+        viewModel.paymentMethods.observe(this, paymentMethods -> goToPaymentMethods());
+        viewModel.showNoCardIssuersMessage.observe(this, this::showNoCardIssuersMessage);
+        viewModel.showNoPaymentMethodsMessage.observe(this, this::showNoPaymentMethodsMessage);
     }
 
+    private void goToPaymentMethods() {
+        viewPager.setCurrentItem(PaymentStepsAdapter.PAYMENT_METHODS);
+    }
+
+    private void goToCardIssuers() {
+        viewPager.setCurrentItem(PaymentStepsAdapter.CARD_ISSUERS);
+    }
 
     public void showLoading(boolean show) {
         if (show) {
@@ -74,10 +78,6 @@ public class PaymentStepsActivity extends DaggerAppCompatActivity implements
         }
     }
 
-    public void showPaymentMethods(List<PaymentMethodModel> paymentMethods) {
-        adapter.getPaymentMethodsFragment().showPaymentMethods(paymentMethods);
-        viewPager.setCurrentItem(PaymentStepsAdapter.PAYMENT_METHODS);
-    }
 
     private void showErrorMessage(Event<Boolean> event) {
         if (event.getContentIfNotHandled() != null) {
@@ -103,12 +103,7 @@ public class PaymentStepsActivity extends DaggerAppCompatActivity implements
 
     @Override
     public void onMontoSet(long monto) {
-        viewModel.goToSelectPaymentMethod(monto);
-    }
-
-    @Override
-    public void onPaymentMethodSelected(PaymentMethodModel selectedPaymentMethod) {
-        viewModel.goToSelectCardIssuers(selectedPaymentMethod);
+        viewModel.fetchPaymentMethods(monto);
     }
 
     public void showPaymentMethodsErrorAndRetryMessage() {

@@ -2,20 +2,19 @@ package com.nelsonalfo.paymentapp.presentation.adapters;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentPagerAdapter;
 
 import com.nelsonalfo.paymentapp.presentation.fragments.AmountFragment;
+import com.nelsonalfo.paymentapp.presentation.fragments.CardIssuersFragment;
 import com.nelsonalfo.paymentapp.presentation.fragments.PaymentMethodsFragment;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PaymentStepsAdapter extends FragmentStatePagerAdapter {
+public class PaymentStepsAdapter extends FragmentPagerAdapter {
     public static final int AMOUNT = 0;
     public static final int PAYMENT_METHODS = 1;
-
-    private final PaymentMethodsFragment paymentMethodsFragment;
-    private final AmountFragment amountFragment;
+    public static final int CARD_ISSUERS = 2;
 
     private final List<Fragment> paymentSteps;
 
@@ -24,11 +23,9 @@ public class PaymentStepsAdapter extends FragmentStatePagerAdapter {
 
         paymentSteps = new ArrayList<>();
 
-        amountFragment = AmountFragment.newInstance();
-        paymentMethodsFragment = PaymentMethodsFragment.newInstance();
-
-        paymentSteps.add(AMOUNT, amountFragment);
-        paymentSteps.add(PAYMENT_METHODS, paymentMethodsFragment);
+        paymentSteps.add(AMOUNT, AmountFragment.newInstance());
+        paymentSteps.add(PAYMENT_METHODS, PaymentMethodsFragment.newInstance());
+        paymentSteps.add(CARD_ISSUERS, CardIssuersFragment.newInstance());
     }
 
     @Override
@@ -39,13 +36,5 @@ public class PaymentStepsAdapter extends FragmentStatePagerAdapter {
     @Override
     public int getCount() {
         return paymentSteps.size();
-    }
-
-    public PaymentMethodsFragment getPaymentMethodsFragment() {
-        return paymentMethodsFragment;
-    }
-
-    public AmountFragment getAmountFragment() {
-        return amountFragment;
     }
 }

@@ -7,4 +7,5 @@
     <string name="hint_monto_edit_text">Ej: 4000</string>
 
     <string name="select_payment_title">Selecciona un metodo de pago</string>
+    <string name="card_issuers_title">Selecciona un banco</string>
 </resources>

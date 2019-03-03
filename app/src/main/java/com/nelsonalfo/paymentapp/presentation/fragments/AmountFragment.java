@@ -1,8 +1,10 @@
 package com.nelsonalfo.paymentapp.presentation.fragments;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -11,16 +13,20 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 
 import com.nelsonalfo.paymentapp.R;
+import com.nelsonalfo.paymentapp.presentation.PaymentStepsViewModel;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+
+import static java.util.Objects.requireNonNull;
 
 public class AmountFragment extends Fragment {
     @BindView(R.id.monto_edit_text)
     EditText montoEditText;
 
     private Listener listener;
+    private PaymentStepsViewModel viewModel;
 
 
     public AmountFragment() {
@@ -28,6 +34,13 @@ public class AmountFragment extends Fragment {
 
     public static AmountFragment newInstance() {
         return new AmountFragment();
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        viewModel = ViewModelProviders.of(requireNonNull(getActivity())).get(PaymentStepsViewModel.class);
     }
 
     @Override
@@ -51,7 +64,7 @@ public class AmountFragment extends Fragment {
 
     private void notifyMontoIsSet() {
         final String textValue = montoEditText.getText().toString().trim();
-        listener.onMontoSet(Long.parseLong(textValue));
+        viewModel.fetchPaymentMethods(Long.parseLong(textValue));
     }
 
     @Override
