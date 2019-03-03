@@ -2,9 +2,11 @@ package com.nelsonalfo.paymentapp;
 
 import com.nelsonalfo.paymentapp.models.CardIssuerModel;
 import com.nelsonalfo.paymentapp.models.CuotaModel;
+import com.nelsonalfo.paymentapp.models.InstallmentModel;
 import com.nelsonalfo.paymentapp.models.PaymentMethodModel;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class StubsFactory {
@@ -31,5 +33,9 @@ public class StubsFactory {
                 new CuotaModel(1, "1 cuota de $ 4.000,00 ($ 4.000,00)"),
                 new CuotaModel(3, "3 cuotas de $ 1.596,27 ($ 4.788,80)")
         );
+    }
+
+    public static List<InstallmentModel> getInstallmentStubs() {
+        return Collections.singletonList(new InstallmentModel(getCuotaStubs()));
     }
 }

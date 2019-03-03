@@ -7,6 +7,7 @@ import com.nelsonalfo.paymentapp.commons.rxjava.PostExecutionThread;
 import com.nelsonalfo.paymentapp.commons.rxjava.ThreadExecutor;
 import com.nelsonalfo.paymentapp.models.CardIssuerModel;
 import com.nelsonalfo.paymentapp.models.CuotaModel;
+import com.nelsonalfo.paymentapp.models.InstallmentModel;
 import com.nelsonalfo.paymentapp.models.PaymentMethodModel;
 
 import java.util.List;
@@ -15,6 +16,7 @@ import javax.inject.Inject;
 
 import io.reactivex.functions.Consumer;
 
+@SuppressLint("CheckResult")
 public class RemotePaymentRepository implements PaymentRepository {
 
     private ThreadExecutor backThread;
@@ -28,7 +30,7 @@ public class RemotePaymentRepository implements PaymentRepository {
         this.api = api;
     }
 
-    @SuppressLint("CheckResult")
+
     @Override
     public void getPaymentMethods(Consumer<List<PaymentMethodModel>> success, Consumer<Throwable> error) {
         api.getPaymentMethods(Constants.PUBLIC_KEY)
@@ -51,11 +53,23 @@ public class RemotePaymentRepository implements PaymentRepository {
 
     @Override
     public void getCardIssuers(String paymentMethodId, Consumer<List<CardIssuerModel>> success, Consumer<Throwable> error) {
-
+        api.getCardIssuers(Constants.PUBLIC_KEY, paymentMethodId)
+                .subscribeOn(backThread.getScheduler())
+                .observeOn(uiThread.getScheduler())
+                .subscribe(success, error);
     }
 
     @Override
     public void getCuotas(Params params, Consumer<List<CuotaModel>> success, Consumer<Throwable> error) {
+        api.getCuotas(Constants.PUBLIC_KEY, params.monto, params.paymentMethodId, params.issuerId)
+                .map(this::getCuotas)
+                .subscribeOn(backThread.getScheduler())
+                .observeOn(uiThread.getScheduler())
+                .subscribe(success, error);
+    }
 
+    private List<CuotaModel> getCuotas(List<InstallmentModel> installments) {
+        final InstallmentModel installment = installments.get(0);
+        return installment.getCuotas();
     }
 }

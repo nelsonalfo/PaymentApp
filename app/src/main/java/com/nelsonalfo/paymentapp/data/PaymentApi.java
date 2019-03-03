@@ -20,12 +20,12 @@ public interface PaymentApi {
     Single<List<PaymentMethodModel>> getPaymentMethods(@Query("public_key") String publicKey);
 
     @GET(VERSION + PAYMENT_METHODS + CARD_ISSUERS)
-    Single<List<CardIssuerModel>> getBanksList(@Query("public_key") String publicKey,
-                                                    @Query("payment_method_id") String paymentMethodId);
+    Single<List<CardIssuerModel>> getCardIssuers(@Query("public_key") String publicKey,
+                                                 @Query("payment_method_id") String paymentMethodId);
 
     @GET(VERSION + PAYMENT_METHODS + INSTALLMENTS)
-    Single<List<InstallmentModel>> getInstallments(@Query("public_key") String publicKey,
-                                                        @Query("amount") Long amount,
-                                                        @Query("payment_method_id") String paymentMethodId,
-                                                        @Query("issuer.id") String issuerId);
+    Single<List<InstallmentModel>> getCuotas(@Query("public_key") String publicKey,
+                                             @Query("amount") Long amount,
+                                             @Query("payment_method_id") String paymentMethodId,
+                                             @Query("issuer.id") String issuerId);
 }
